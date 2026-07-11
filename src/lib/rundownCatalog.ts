@@ -38,6 +38,17 @@ export const fetchingAfter: CatalogItem[] = [
 export const fetchingAnchorLabel = "接新娘（吉時）";
 export const fetchingAnchorDurationMin = 30;
 
+// 簡化準備（冇出入門/吉時，由化妝師到達開始順推）
+export const prepOnlyItems: CatalogItem[] = [
+  item("p-makeup", "化妝師到達，開始為新娘化妝", 120),
+  item("p-groom-dress", "新郎化妝 / 換裝", 45),
+  item("p-car-deco", "佈置花車 / 婚車", 15, false),
+  item("p-footage", "拍攝準備花絮", 30, false),
+  item("p-family-photo", "與家人合照", 20),
+  item("p-change", "換證婚服 / 換裝", 30),
+  item("p-depart", "出發往證婚 / 宴會場地（交通時間）", 15),
+];
+
 // 證婚儀式
 export const ceremonyItems: CatalogItem[] = [
   item("c-welcome", "賓客入座 / Welcome Guest", 15),
