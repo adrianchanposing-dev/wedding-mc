@@ -260,12 +260,12 @@ export default function RundownFestive() {
       <div className={styles.page}>
         <div className={styles.hero}>
           <p className={styles.eyebrow}>Traditional Chinese Wedding</p>
-          <h1 className={styles.title}>編排你嘅婚禮流程</h1>
+          <h1 className={styles.title}>編排您的婚禮流程</h1>
           <p className={styles.subhead}>
-            揀返你想保留嘅習俗，設定好時間，就可以得到一份清晰嘅流程表，交俾父母、攝影師同司儀。
+            選取欲保留的習俗，設定好時間，即可得到一份清晰的流程表，交予父母、攝影師及司儀。
           </p>
           <p className={styles.disclaimer}>
-            各地、各家族嘅習俗都有唔同——呢個只係一個幫你開始嘅參考，並唔係硬性規則。
+            各地、各家族的習俗皆有不同——此表僅作為起步參考，並非硬性規則。
           </p>
         </div>
 
@@ -285,7 +285,7 @@ export default function RundownFestive() {
             />
           </div>
           <p className={styles.sectionNote}>
-            如果你哋嘅早晨係私下進行，或者想將所有環節合併做一場，可以整個略過。
+            若早上環節將私下進行，或希望將所有環節合併為一場，可整個略過。
           </p>
           {fetchingMode === "anchor" && (
             <>
@@ -340,7 +340,7 @@ export default function RundownFestive() {
               ]}
             />
           </div>
-          <p className={styles.sectionNote}>選擇你哋打算點樣正式完成呢段婚姻。</p>
+          <p className={styles.sectionNote}>選擇打算如何正式完成這段婚姻。</p>
           {hasCeremony && (
             <>
               <div className={styles.fieldRowGroup}>
@@ -441,13 +441,13 @@ export default function RundownFestive() {
               流程表
             </span>
           </button>
-          <p className={styles.stampHint}>撳個囍字印章，生成你哋嘅流程表</p>
+          <p className={styles.stampHint}>按下囍字印章，生成專屬流程表</p>
         </div>
 
         {generated && (
           <section className={styles.output}>
             <div className={styles.outputHeader}>
-              <h2>你哋嘅流程表</h2>
+              <h2>您的流程表</h2>
               <div className={styles.outputActions}>
                 <button type="button" className={styles.ghostBtn} onClick={handlePrint}>
                   列印 / 儲存 PDF

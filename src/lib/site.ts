@@ -1,8 +1,8 @@
 export const site = {
   brand: "MC Adrian Chan",
   brandZh: "婚禮 / 宴會司儀",
-  tagline: "內斂但專業，低調但穩陣",
-  taglineSub: "你享受每一刻，我負責每一步",
+  tagline: "內斂而專業，低調而穩重",
+  taglineSub: "您安心享受每一刻，我用心成就每一步",
   instagramHandle: "mc.adrian.chan",
   instagramUrl: "https://www.instagram.com/mc.adrian.chan/",
   whatsappNumber: "85290716582",

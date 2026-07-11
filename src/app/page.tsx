@@ -48,24 +48,24 @@ export default function Home() {
           </div>
           <div className="space-y-5 text-muted">
             <p>
-              我係 <span className="text-ink font-medium">{site.brand}</span>
-              ，主力做婚禮同宴會司儀。風格傾向
-              <span className="text-ink">內斂而專業</span>——唔會搶新人風頭，
-              但每個環節、每句串場都經過準備，確保全場流程順暢、氣氛到位。
+              我是 <span className="text-ink font-medium">{site.brand}</span>
+              ，專職主持婚禮及宴會。風格傾向
+              <span className="text-ink">內斂而專業</span>——不喧賓奪主，
+              惟每個環節、每句串場皆經細心準備，確保全場流程順暢、氣氛恰到好處。
             </p>
             <p>
-              我相信一場好嘅婚禮司儀工作，係要做到
-              <span className="text-ink">「你享受每一刻，我負責每一步」</span>
-              ：由嘉賓入場、證婚儀式、敬酒環節到遊戲互動，
-              背後嘅時間表、串場稿同臨場應變，都由我一手包辦。
+              我深信一場出色的司儀工作，應當做到
+              <span className="text-ink">「您享受每一刻，我成就每一步」</span>
+              ：由嘉賓入場、證婚儀式、敬酒環節以至遊戲互動，
+              背後的時間表、串場稿與臨場應變，皆由我一手包辦。
             </p>
             <p>
-              曾經主持過唔同規模同形式嘅場合——由幾十人嘅小型午宴，
-              到過百席嘅大型婚宴同企業活動，
-              都習慣因應唔同新人嘅性格同要求，調節主持節奏同風格。
+              曾主持不同規模與形式的場合——由數十人的小型午宴，
+              到過百席的大型婚宴及企業活動，
+              皆能因應新人的性格與要求，調節主持節奏與風格。
             </p>
             <p className="text-sm text-muted/80">
-              （以上簡介會不時更新，實際案例及相片請參閱下方過往案例同
+              （以上簡介將不時更新，實際案例及相片請參閱下方過往案例，或
               <a
                 href={site.instagramUrl}
                 target="_blank"
@@ -89,8 +89,8 @@ export default function Home() {
           </p>
           <h2 className="mt-3 font-serif-display text-3xl text-ink">過往案例</h2>
           <p className="mt-3 max-w-2xl text-muted">
-            以下分類參考自 Instagram 精選限動，相片同詳情陸續更新，
-            歡迎到 Instagram 睇更多實際主持花絮。
+            以下分類參考自 Instagram 精選限動，相片及詳情將陸續更新，
+            歡迎前往 Instagram 瀏覽更多實際主持花絮。
           </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {portfolioCategories.map((cat) => (
@@ -122,7 +122,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="text-sm text-accent-dark underline underline-offset-4"
             >
-              查看 Instagram @{site.instagramHandle} 更多花絮 →
+              前往 Instagram @{site.instagramHandle} 瀏覽更多花絮 →
             </a>
           </div>
         </div>
@@ -136,17 +136,17 @@ export default function Home() {
               Resources
             </p>
             <h2 className="mt-3 font-serif-display text-3xl text-ink">
-              籌備婚禮，由呢度開始
+              籌備婚禮，由此開始
             </h2>
             <p className="mt-4 text-muted">
-              整理咗一系列婚禮籌備資訊，包括揀選司儀嘅要點、
-              常見流程形式、時間表安排貼士等，等你籌備嘅時候少行彎路。
+              已整理一系列婚禮籌備資訊，包括揀選司儀的要點、
+              常見流程形式，以及時間表安排貼士，助您籌備時少走彎路。
             </p>
             <Link
               href="/prep"
               className="mt-6 inline-block rounded-full bg-accent px-6 py-3 text-white transition hover:bg-accent-dark"
             >
-              睇籌備資訊
+              瀏覽籌備資訊
             </Link>
           </div>
           <div>
@@ -157,9 +157,9 @@ export default function Home() {
               Rundown 生成器
             </h2>
             <p className="mt-4 text-muted">
-              揀個流程範本（中式 / 西式 / 教堂 + 晚宴 等），
-              輸入開始時間，自動幫你計晒每個環節嘅時間，
-              仲可以自由增減、調整順序，最後匯出/列印。
+              揀選流程範本（中式 / 西式 / 教堂 + 晚宴等），
+              輸入開始時間，即自動計算每個環節的時間，
+              並可自由增減、調整順序，最後匯出或列印。
             </p>
             <Link
               href="/rundown"

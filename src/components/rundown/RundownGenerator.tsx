@@ -33,7 +33,8 @@ import {
 
 type RuntimeItem = CatalogItem & { checked: boolean };
 type ScheduledItem = RuntimeItem & { start: string; end: string };
-type FetchingMode = "none" | "anchor";
+type FetchingMode = "none" | "anchor" | "undecided";
+type CeremonyMode = "no" | "yes" | "undecided";
 
 function scheduleSequential(startTime: string, items: RuntimeItem[]): ScheduledItem[] {
   return items.reduce<{ time: string; list: ScheduledItem[] }>(
@@ -49,6 +50,13 @@ function scheduleSequential(startTime: string, items: RuntimeItem[]): ScheduledI
 function scheduleBackward(endTime: string, items: RuntimeItem[]): ScheduledItem[] {
   const total = items.reduce((s, i) => s + i.durationMin, 0);
   return scheduleSequential(addMinutes(endTime, -total), items);
+}
+
+function formatDuration(totalMin: number): string {
+  if (totalMin < 60) return `${totalMin} 分鐘`;
+  const hours = Math.floor(totalMin / 60);
+  const mins = totalMin % 60;
+  return mins === 0 ? `${hours} 小時` : `${hours} 小時 ${mins} 分鐘`;
 }
 
 function useChecklist(initial: CatalogItem[]) {
@@ -130,7 +138,7 @@ function ChecklistEditor({ list }: { list: ReturnType<typeof useChecklist> }) {
           {it.desc && (
             <details className="mt-2 sm:pl-7">
               <summary className="cursor-pointer text-xs text-accent-dark hover:underline">
-                呢個環節係咩？
+                此環節說明
               </summary>
               <p className="mt-1 text-xs leading-relaxed text-muted">{it.desc}</p>
             </details>
@@ -152,9 +160,39 @@ function AnchorNote({ desc }: { desc?: string }) {
   return (
     <details className="mt-1">
       <summary className="cursor-pointer text-xs text-accent-dark hover:underline">
-        呢個環節係咩？
+        此環節說明
       </summary>
       <p className="mt-1 text-xs leading-relaxed text-accent-dark/80">{desc}</p>
+    </details>
+  );
+}
+
+function SectionBlock({
+  title,
+  list,
+  defaultOpen = false,
+}: {
+  title: string;
+  list: ReturnType<typeof useChecklist>;
+  defaultOpen?: boolean;
+}) {
+  const checkedCount = list.items.filter((i) => i.checked).length;
+  const totalMin = list.items.filter((i) => i.checked).reduce((s, i) => s + i.durationMin, 0);
+  return (
+    <details open={defaultOpen} className="group rounded-xl border border-line">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-3 text-sm font-medium text-accent-dark marker:content-none">
+        <span>
+          {title}
+          <span className="ml-2 font-normal text-muted">
+            共 {checkedCount} 個環節・約需 {formatDuration(totalMin)}
+          </span>
+        </span>
+        <span className="shrink-0 text-xs text-accent-dark/70 group-open:hidden">展開詳情 / 編輯</span>
+        <span className="hidden shrink-0 text-xs text-accent-dark/70 group-open:inline">收合</span>
+      </summary>
+      <div className="border-t border-line p-3">
+        <ChecklistEditor list={list} />
+      </div>
     </details>
   );
 }
@@ -181,13 +219,13 @@ function ModeButton({
 }
 
 export default function RundownGenerator() {
-  const [eventTitle, setEventTitle] = useState("我哋嘅婚禮");
+  const [eventTitle, setEventTitle] = useState("我們的婚禮");
   const [banquetType, setBanquetType] = useState<BanquetType>("dinner");
 
   const [fetchingMode, setFetchingMode] = useState<FetchingMode>("anchor");
   const [fetchAnchorTime, setFetchAnchorTime] = useState("10:00");
 
-  const [hasCeremony, setHasCeremony] = useState(true);
+  const [ceremonyMode, setCeremonyMode] = useState<CeremonyMode>("yes");
   const [ceremonyStart, setCeremonyStart] = useState("17:00");
 
   const [banquetStart, setBanquetStart] = useState("20:00");
@@ -254,7 +292,7 @@ export default function RundownGenerator() {
 
   // 出入門完成後、證婚開始前嘅空檔——安排午膳及外影
   const lunchAndPhotoGap = useMemo(() => {
-    if (fetchingMode !== "anchor" || !hasCeremony) return null;
+    if (fetchingMode !== "anchor" || ceremonyMode !== "yes") return null;
     const gapStart =
       anchorSchedule.afterScheduled.length > 0
         ? anchorSchedule.afterScheduled[anchorSchedule.afterScheduled.length - 1].end
@@ -270,7 +308,7 @@ export default function RundownGenerator() {
     const gapMinutes = toMinutes(gapEnd) - toMinutes(gapStart);
     if (gapMinutes <= 0) return null;
     return { start: gapStart, end: gapEnd };
-  }, [fetchingMode, hasCeremony, anchorSchedule, ceremonySchedule]);
+  }, [fetchingMode, ceremonyMode, anchorSchedule, ceremonySchedule]);
 
   function buildLines(): string[] {
     const lines: string[] = [`${eventTitle} — Rundown`];
@@ -284,7 +322,7 @@ export default function RundownGenerator() {
       lines.push("", "【午膳及外影】");
       lines.push(`${lunchAndPhotoGap.start} - ${lunchAndPhotoGap.end}　安排午膳及外影環節`);
     }
-    if (hasCeremony) {
+    if (ceremonyMode === "yes") {
       lines.push("", "【證婚儀式】");
       ceremonySchedule.beforeScheduled.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
       lines.push(
@@ -314,22 +352,22 @@ export default function RundownGenerator() {
   }
 
   let stepNum = 1;
-  const fetchingStepNum = fetchingMode !== "none" ? ++stepNum : null;
-  const ceremonyStepNum = hasCeremony ? ++stepNum : null;
+  const fetchingStepNum = fetchingMode === "anchor" ? ++stepNum : null;
+  const ceremonyStepNum = ceremonyMode === "yes" ? ++stepNum : null;
   const banquetStepNum = ++stepNum;
 
   return (
     <div className="space-y-10">
       {/* 新手提示 */}
       <div className="no-print rounded-2xl border border-accent/30 bg-accent/5 p-5 text-sm text-ink">
-        <p className="font-medium text-accent-dark">第一次籌備婚禮，唔識啲術語？</p>
+        <p className="font-medium text-accent-dark">初次籌備婚禮，對術語尚感陌生？</p>
         <p className="mt-1 text-muted">
-          迎親、證婚儀式、敬酒呢啲字眼下面都有「呢個環節係咩？」可以撳開睇解釋。
-          如果想先了解成個流程點編排，可以睇
+          迎親、證婚儀式、敬酒等字眼下方，均設有「此環節說明」可供展開閱讀。
+          若想先行了解整個流程如何編排，可參閱
           <Link href="/prep#glossary" className="text-accent-dark underline underline-offset-2">
-            婚禮術語小百科同籌備懶人包
+            婚禮術語小百科及籌備指南
           </Link>
-          。未有答案都可以先隨便填，跟住印低嚟同伴侶/司儀慢慢傾。
+          。尚未有答案亦無妨，先行填寫，再列印下來與伴侶或司儀從容商討。
         </p>
       </div>
 
@@ -361,8 +399,9 @@ export default function RundownGenerator() {
         <div className="mt-6 rounded-xl border border-line p-4">
           <label className="text-sm font-medium text-ink">是否設有出入門儀式（迎親）？</label>
           <p className="mt-1 text-xs text-muted">
-            即係新郎去新娘屋企接新娘嗰個傳統環節（玩遊戲攞開門利是、拜見女家父母、斟茶）。
-            唔設都可以，好多新人會簡化或者跳過。未決定？可以先揀「設有」睇下大約要幾耐，遲啲隨時改。
+            即新郎前往新娘家中迎接新娘的傳統環節（開門利是、遊戲關卡、拜見女家父母、奉茶）。
+            不設亦無妨，不少新人選擇簡化或省略此環節。尚未決定？可先選「設有」，
+            了解大致所需時間，日後仍可隨時更改。
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             <ModeButton active={fetchingMode === "none"} onClick={() => setFetchingMode("none")}>
@@ -371,10 +410,16 @@ export default function RundownGenerator() {
             <ModeButton active={fetchingMode === "anchor"} onClick={() => setFetchingMode("anchor")}>
               設有出入門儀式
             </ModeButton>
+            <ModeButton
+              active={fetchingMode === "undecided"}
+              onClick={() => setFetchingMode("undecided")}
+            >
+              尚未決定，先看說明
+            </ModeButton>
           </div>
           {fetchingMode === "anchor" && (
             <div className="mt-3">
-              <label className="text-xs text-muted">出門吉時（新人完成女家奉茶、出閣離開女家嘅時刻）</label>
+              <label className="text-xs text-muted">出門吉時（新人完成女家奉茶、正式出閣離開女家的時刻）</label>
               <input
                 type="time"
                 value={fetchAnchorTime}
@@ -383,31 +428,56 @@ export default function RundownGenerator() {
               />
             </div>
           )}
+          {fetchingMode === "undecided" && (
+            <div className="mt-3 rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs leading-relaxed text-muted">
+              於香港傳統婚禮中，不少新人都會設有迎親環節，惟亦有新人為求簡化流程而選擇省略。
+              此環節通常涉及開門利是、遊戲關卡、女家奉茶，全套大約需要 2–3 小時（視乎化妝、拍攝需要而定）。
+              若想了解實際時間表如何編排，可先選「設有出入門儀式」試看，日後仍可隨時改為「不設」。
+              如欲進一步了解，可參閱
+              <Link href="/prep#glossary" className="text-accent-dark underline underline-offset-2">
+                婚禮術語小百科
+              </Link>
+              。
+            </div>
+          )}
         </div>
 
         <div className="mt-6 rounded-xl border border-line p-4">
-          <label className="flex items-center gap-2 text-sm font-medium text-ink">
-            <input
-              type="checkbox"
-              checked={hasCeremony}
-              onChange={(e) => setHasCeremony(e.target.checked)}
-              className="h-4 w-4 accent-accent"
-            />
-            是否設有證婚儀式？
-          </label>
-          <p className="mt-1 pl-6 text-xs text-muted">
-            即係現場宣讀誓詞、交換戒指、簽結婚證書嘅法律程序（通常由律師/主禮人主持）。
-            如果你哋已經去咗婚姻登記處註冊，婚禮當日可以唔使再設呢個環節。
+          <label className="text-sm font-medium text-ink">是否設有證婚儀式？</label>
+          <p className="mt-1 text-xs text-muted">
+            即現場宣讀誓詞、交換戒指、簽署結婚證書的法律程序（通常由律師或主禮人主持）。
+            若已於婚姻登記處完成註冊，婚禮當日可毋須再設此環節。
           </p>
-          {hasCeremony && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            <ModeButton active={ceremonyMode === "no"} onClick={() => setCeremonyMode("no")}>
+              不設
+            </ModeButton>
+            <ModeButton active={ceremonyMode === "yes"} onClick={() => setCeremonyMode("yes")}>
+              設有證婚儀式
+            </ModeButton>
+            <ModeButton
+              active={ceremonyMode === "undecided"}
+              onClick={() => setCeremonyMode("undecided")}
+            >
+              尚未決定，先看說明
+            </ModeButton>
+          </div>
+          {ceremonyMode === "yes" && (
             <div className="mt-3">
-              <label className="text-xs text-muted">開始證婚儀式時間（宣讀誓詞及簽紙嗰刻）</label>
+              <label className="text-xs text-muted">開始證婚儀式時間（宣讀誓詞及簽紙的時刻）</label>
               <input
                 type="time"
                 value={ceremonyStart}
                 onChange={(e) => setCeremonyStart(e.target.value)}
                 className="mt-1 w-full max-w-xs rounded-lg border border-line bg-background px-3 py-2 text-sm"
               />
+            </div>
+          )}
+          {ceremonyMode === "undecided" && (
+            <div className="mt-3 rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs leading-relaxed text-muted">
+              若希望於婚禮當日正式簽紙、交換戒指，便需設有證婚儀式（通常由律師主持，約需 20 分鐘）。
+              惟若已於婚姻登記處完成註冊，當日只想切餅、拍照留念，可選「不設」，改於晚宴中加入切餅環節。
+              尚未與伴侶商議妥當？可先選「設有」，了解時間表如何編排，日後仍可隨時更改。
             </div>
           )}
         </div>
@@ -431,42 +501,38 @@ export default function RundownGenerator() {
         <div className="no-print rounded-2xl border border-line bg-card p-6">
           <h2 className="font-serif-display text-xl text-ink">{fetchingStepNum}. 迎親環節</h2>
           <p className="mt-1 text-sm text-muted">
-            時間會自動由「出門（吉時）」倒推 / 順推。出門吉時係指新人完成女家奉茶、正式出閣離開女家嘅時刻；
-            如果新人冇擇吉時，呢個時間就取決於新人想幾點出門。以下骨幹時間點假設出入門喺同一間酒店進行。
+            時間將自動由「出門（吉時）」倒推或順推。出門吉時係指新人完成女家奉茶、正式出閣離開女家的時刻；
+            若新人未擇吉時，此時間則取決於新人期望出門的時刻。以下骨幹時間點假設出入門於同一間酒店進行。
           </p>
-          <h3 className="mt-5 text-sm font-medium text-accent-dark">出門之前</h3>
-          <div className="mt-2">
-            <ChecklistEditor list={beforeList} />
+          <div className="mt-5">
+            <SectionBlock title="出門之前" list={beforeList} />
           </div>
           <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 text-sm font-medium text-accent-dark">
             {anchorSchedule.anchorStart} - {anchorSchedule.anchorEnd}　{fetchingAnchorLabel}
             <AnchorNote desc={fetchingAnchorDesc} />
           </div>
-          <h3 className="mt-5 text-sm font-medium text-accent-dark">出門之後</h3>
-          <div className="mt-2">
-            <ChecklistEditor list={afterList} />
+          <div className="mt-5">
+            <SectionBlock title="出門之後" list={afterList} />
           </div>
         </div>
       )}
 
       {/* Step 3: 證婚 */}
-      {hasCeremony && (
+      {ceremonyMode === "yes" && (
         <div className="no-print rounded-2xl border border-line bg-card p-6">
           <h2 className="font-serif-display text-xl text-ink">{ceremonyStepNum}. 證婚儀式環節</h2>
           <p className="mt-1 text-sm text-muted">
-            時間會自動由「開始證婚儀式」倒推 / 順推。
+            時間將自動由「開始證婚儀式」倒推或順推。
           </p>
-          <h3 className="mt-5 text-sm font-medium text-accent-dark">開始儀式之前</h3>
-          <div className="mt-2">
-            <ChecklistEditor list={ceremonyBeforeList} />
+          <div className="mt-5">
+            <SectionBlock title="開始儀式之前" list={ceremonyBeforeList} />
           </div>
           <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 text-sm font-medium text-accent-dark">
             {ceremonySchedule.anchorStart} - {ceremonySchedule.anchorEnd}　{ceremonyAnchorLabel}
             <AnchorNote desc={ceremonyAnchorDesc} />
           </div>
-          <h3 className="mt-5 text-sm font-medium text-accent-dark">完成儀式之後</h3>
-          <div className="mt-2">
-            <ChecklistEditor list={ceremonyAfterList} />
+          <div className="mt-5">
+            <SectionBlock title="完成儀式之後" list={ceremonyAfterList} />
           </div>
         </div>
       )}
@@ -476,18 +542,16 @@ export default function RundownGenerator() {
         <h2 className="font-serif-display text-xl text-ink">
           {banquetStepNum}. {banquetTitleFor(banquetType)}環節
         </h2>
-        <p className="mt-1 text-sm text-muted">時間會自動由「開席」倒推 / 順推。</p>
-        <h3 className="mt-5 text-sm font-medium text-accent-dark">開席之前</h3>
-        <div className="mt-2">
-          <ChecklistEditor list={activeBanquetBeforeList} />
+        <p className="mt-1 text-sm text-muted">時間將自動由「開席」倒推或順推。</p>
+        <div className="mt-5">
+          <SectionBlock title="開席之前" list={activeBanquetBeforeList} />
         </div>
         <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 text-sm font-medium text-accent-dark">
           {banquetSchedule.anchorStart} - {banquetSchedule.anchorEnd}　{banquetAnchorLabel}
           <AnchorNote desc={banquetAnchorDesc} />
         </div>
-        <h3 className="mt-5 text-sm font-medium text-accent-dark">開席之後</h3>
-        <div className="mt-2">
-          <ChecklistEditor list={activeBanquetAfterList} />
+        <div className="mt-5">
+          <SectionBlock title="開席之後" list={activeBanquetAfterList} />
         </div>
       </div>
 
@@ -507,8 +571,8 @@ export default function RundownGenerator() {
         </button>
       </div>
       <p className="no-print text-xs text-muted">
-        未有定案都冇問題——先下載呢個版本，同伴侶、家人或者司儀傾一傾邊啲環節要保留、邊啲可以刪走，
-        之後隨時返嚟呢頁再調整就得。
+        尚未定案亦無妨——不妨先下載此版本，與伴侶、家人或司儀商討哪些環節應予保留、哪些可以刪去，
+        日後隨時回到此頁再作調整即可。
       </p>
 
       {/* Preview / print output */}
@@ -559,7 +623,7 @@ export default function RundownGenerator() {
             </div>
           )}
 
-          {hasCeremony && (
+          {ceremonyMode === "yes" && (
             <div>
               <h3 className="font-serif-display text-lg text-accent-dark">證婚儀式</h3>
               <div className="mt-3 space-y-2">
