@@ -7,7 +7,7 @@ export const site = {
   instagramUrl: "https://www.instagram.com/mc.adrian.chan/",
   whatsappNumber: "85290716582",
   whatsappDisplay: "+852 9071 6582",
-  email: "adrianchanposing@gmail.com",
+  email: "mcadrianchan@gmail.com",
 };
 
 // 想換相？將相片放入 public/portfolio/ 資料夾，
