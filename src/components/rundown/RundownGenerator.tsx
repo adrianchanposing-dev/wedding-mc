@@ -99,18 +99,6 @@ function ChecklistEditor({ list }: { list: ReturnType<typeof useChecklist> }) {
             className="flex-1 rounded-lg border border-line bg-card px-3 py-1.5 text-sm"
           />
           <div className="flex items-center gap-2">
-            <label className="flex items-center gap-1 text-xs text-muted">
-              分鐘
-              <input
-                type="number"
-                min={1}
-                value={it.durationMin}
-                onChange={(e) =>
-                  list.update(it.id, { durationMin: Math.max(1, Number(e.target.value) || 1) })
-                }
-                className="w-16 rounded-lg border border-line bg-card px-2 py-1 text-sm"
-              />
-            </label>
             <button
               onClick={() => list.move(index, -1)}
               disabled={index === 0}
@@ -174,7 +162,6 @@ export default function RundownGenerator() {
 
   const [hasCeremony, setHasCeremony] = useState(true);
   const [ceremonyStart, setCeremonyStart] = useState("17:00");
-  const [ceremonyContinuous, setCeremonyContinuous] = useState(false);
 
   const [banquetStart, setBanquetStart] = useState("20:00");
 
@@ -227,20 +214,15 @@ export default function RundownGenerator() {
     return { beforeScheduled, anchorStart, anchorEnd, afterScheduled };
   }, [beforeList.items, afterList.items, fetchAnchorTime]);
 
-  // 證婚時間表：以「開始證婚儀式」做錨點。連續模式下，錨點時間由宴會開始時間倒推
-  // （令證婚之後嘅大合照啱啱好喺宴會開始前完成）；否則用獨立嘅證婚開始時間。
+  // 證婚時間表：以「開始證婚儀式」做錨點。
   const ceremonySchedule = useMemo(() => {
     const before = ceremonyBeforeList.items.filter((i) => i.checked);
     const after = ceremonyAfterList.items.filter((i) => i.checked);
-    const afterTotal = after.reduce((s, i) => s + i.durationMin, 0);
-    const anchorStart = ceremonyContinuous
-      ? addMinutes(banquetStart, -(afterTotal + ceremonyAnchorDurationMin))
-      : ceremonyStart;
-    const beforeScheduled = scheduleBackward(anchorStart, before);
-    const anchorEnd = addMinutes(anchorStart, ceremonyAnchorDurationMin);
+    const beforeScheduled = scheduleBackward(ceremonyStart, before);
+    const anchorEnd = addMinutes(ceremonyStart, ceremonyAnchorDurationMin);
     const afterScheduled = scheduleSequential(anchorEnd, after);
-    return { beforeScheduled, anchorStart, anchorEnd, afterScheduled };
-  }, [ceremonyBeforeList.items, ceremonyAfterList.items, ceremonyStart, ceremonyContinuous, banquetStart]);
+    return { beforeScheduled, anchorStart: ceremonyStart, anchorEnd, afterScheduled };
+  }, [ceremonyBeforeList.items, ceremonyAfterList.items, ceremonyStart]);
 
   // 出入門完成後、證婚開始前嘅空檔——安排午膳及外影
   const lunchAndPhotoGap = useMemo(() => {
@@ -369,31 +351,14 @@ export default function RundownGenerator() {
             是否設有證婚儀式？
           </label>
           {hasCeremony && (
-            <div className="mt-3 space-y-3">
-              <label className="flex items-center gap-2 text-sm text-ink">
-                <input
-                  type="checkbox"
-                  checked={ceremonyContinuous}
-                  onChange={(e) => setCeremonyContinuous(e.target.checked)}
-                  className="h-4 w-4 accent-accent"
-                />
-                證婚儀式緊接{banquetTitleFor(banquetType)}舉行（賓客到齊後隨即進行證婚，其後直接開始{banquetTitleFor(banquetType)}，毋須另設開始時間）
-              </label>
-              {ceremonyContinuous ? (
-                <p className="text-xs text-muted">
-                  將根據{banquetTitleFor(banquetType)}開始時間（{banquetStart}）倒推證婚儀式嘅開始時間。
-                </p>
-              ) : (
-                <div>
-                  <label className="text-xs text-muted">開始證婚儀式時間（宣讀誓詞及簽紙嗰刻）</label>
-                  <input
-                    type="time"
-                    value={ceremonyStart}
-                    onChange={(e) => setCeremonyStart(e.target.value)}
-                    className="mt-1 w-full max-w-xs rounded-lg border border-line bg-background px-3 py-2 text-sm"
-                  />
-                </div>
-              )}
+            <div className="mt-3">
+              <label className="text-xs text-muted">開始證婚儀式時間（宣讀誓詞及簽紙嗰刻）</label>
+              <input
+                type="time"
+                value={ceremonyStart}
+                onChange={(e) => setCeremonyStart(e.target.value)}
+                className="mt-1 w-full max-w-xs rounded-lg border border-line bg-background px-3 py-2 text-sm"
+              />
             </div>
           )}
         </div>
