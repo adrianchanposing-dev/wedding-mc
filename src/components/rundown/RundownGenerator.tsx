@@ -5,21 +5,30 @@ import {
   BanquetType,
   CatalogItem,
   addMinutes,
-  banquetItemsFor,
   banquetTitleFor,
-  ceremonyItems,
+  ceremonyAfter,
+  ceremonyAnchorDurationMin,
+  ceremonyAnchorLabel,
+  ceremonyBefore,
+  dinnerAfter,
+  dinnerAnchorDurationMin,
+  dinnerAnchorLabel,
+  dinnerBefore,
   fetchingAfter,
   fetchingAnchorDurationMin,
   fetchingAnchorLabel,
   fetchingBefore,
+  lunchAfter,
+  lunchAnchorDurationMin,
+  lunchAnchorLabel,
+  lunchBefore,
   makeId,
-  prepOnlyItems,
   withRuntimeIds,
 } from "@/lib/rundownCatalog";
 
 type RuntimeItem = CatalogItem & { checked: boolean };
 type ScheduledItem = RuntimeItem & { start: string; end: string };
-type FetchingMode = "none" | "anchor" | "prep";
+type FetchingMode = "none" | "anchor";
 
 function scheduleSequential(startTime: string, items: RuntimeItem[]): ScheduledItem[] {
   return items.reduce<{ time: string; list: ScheduledItem[] }>(
@@ -161,57 +170,51 @@ export default function RundownGenerator() {
   const [banquetType, setBanquetType] = useState<BanquetType>("dinner");
 
   const [fetchingMode, setFetchingMode] = useState<FetchingMode>("anchor");
-  const [fetchAnchorTime, setFetchAnchorTime] = useState("09:20");
-  const [prepStartTime, setPrepStartTime] = useState("05:30");
+  const [fetchAnchorTime, setFetchAnchorTime] = useState("10:00");
 
   const [hasCeremony, setHasCeremony] = useState(true);
-  const [ceremonyStart, setCeremonyStart] = useState("13:00");
+  const [ceremonyStart, setCeremonyStart] = useState("17:00");
   const [ceremonyContinuous, setCeremonyContinuous] = useState(false);
 
-  const [banquetStart, setBanquetStart] = useState("18:00");
+  const [banquetStart, setBanquetStart] = useState("20:00");
 
   const beforeList = useChecklist(fetchingBefore);
   const afterList = useChecklist(fetchingAfter);
-  const prepList = useChecklist(prepOnlyItems);
-  const ceremonyList = useChecklist(ceremonyItems);
-  const [banquetItems, setBanquetItems] = useState(() => withRuntimeIds(banquetItemsFor(banquetType)));
+  const ceremonyBeforeList = useChecklist(ceremonyBefore);
+  const ceremonyAfterList = useChecklist(ceremonyAfter);
+  const dinnerBeforeList = useChecklist(dinnerBefore);
+  const dinnerAfterList = useChecklist(dinnerAfter);
+  const lunchBeforeList = useChecklist(lunchBefore);
+  const lunchAfterList = useChecklist(lunchAfter);
 
   function switchBanquetType(type: BanquetType) {
     setBanquetType(type);
-    setBanquetItems(withRuntimeIds(banquetItemsFor(type)));
+    if (type === "dinner") {
+      setFetchAnchorTime("10:00");
+      setCeremonyStart("17:00");
+      setBanquetStart("20:00");
+    } else {
+      setFetchAnchorTime("09:00");
+      setCeremonyStart("11:00");
+      setBanquetStart("12:30");
+    }
   }
-  const banquetToggle = (id: string) =>
-    setBanquetItems((prev) => prev.map((it) => (it.id === id ? { ...it, checked: !it.checked } : it)));
-  const banquetUpdate = (id: string, patch: Partial<RuntimeItem>) =>
-    setBanquetItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
-  const banquetRemove = (id: string) =>
-    setBanquetItems((prev) => prev.filter((it) => it.id !== id));
-  const banquetAdd = () =>
-    setBanquetItems((prev) => [
-      ...prev,
-      { id: makeId(), label: "新環節", durationMin: 15, defaultChecked: true, checked: true },
-    ]);
-  const banquetMove = (index: number, dir: -1 | 1) =>
-    setBanquetItems((prev) => {
-      const next = [...prev];
-      const target = index + dir;
-      if (target < 0 || target >= next.length) return prev;
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
-  const banquetListShim = {
-    items: banquetItems,
-    toggle: banquetToggle,
-    update: banquetUpdate,
-    remove: banquetRemove,
-    add: banquetAdd,
-    move: banquetMove,
-  };
 
-  const banquetSchedule = useMemo(
-    () => scheduleSequential(banquetStart, banquetItems.filter((i) => i.checked)),
-    [banquetItems, banquetStart]
-  );
+  const activeBanquetBeforeList = banquetType === "dinner" ? dinnerBeforeList : lunchBeforeList;
+  const activeBanquetAfterList = banquetType === "dinner" ? dinnerAfterList : lunchAfterList;
+  const banquetAnchorLabel = banquetType === "dinner" ? dinnerAnchorLabel : lunchAnchorLabel;
+  const banquetAnchorDurationMin =
+    banquetType === "dinner" ? dinnerAnchorDurationMin : lunchAnchorDurationMin;
+
+  // 午宴／晚宴時間表：以「開席」做錨點
+  const banquetSchedule = useMemo(() => {
+    const before = activeBanquetBeforeList.items.filter((i) => i.checked);
+    const after = activeBanquetAfterList.items.filter((i) => i.checked);
+    const beforeScheduled = scheduleBackward(banquetStart, before);
+    const anchorEnd = addMinutes(banquetStart, banquetAnchorDurationMin);
+    const afterScheduled = scheduleSequential(anchorEnd, after);
+    return { beforeScheduled, anchorStart: banquetStart, anchorEnd, afterScheduled };
+  }, [activeBanquetBeforeList.items, activeBanquetAfterList.items, banquetStart, banquetAnchorDurationMin]);
 
   // 迎親／準備時間表
   const anchorSchedule = useMemo(() => {
@@ -224,19 +227,40 @@ export default function RundownGenerator() {
     return { beforeScheduled, anchorStart, anchorEnd, afterScheduled };
   }, [beforeList.items, afterList.items, fetchAnchorTime]);
 
-  const prepSchedule = useMemo(
-    () => scheduleSequential(prepStartTime, prepList.items.filter((i) => i.checked)),
-    [prepList.items, prepStartTime]
-  );
-
-  // 證婚時間表：連續模式由宴會開始時間倒推，否則用獨立開始時間
-  const ceremonyBaseTime = hasCeremony && ceremonyContinuous ? banquetStart : ceremonyStart;
+  // 證婚時間表：以「開始證婚儀式」做錨點。連續模式下，錨點時間由宴會開始時間倒推
+  // （令證婚之後嘅大合照啱啱好喺宴會開始前完成）；否則用獨立嘅證婚開始時間。
   const ceremonySchedule = useMemo(() => {
-    const checked = ceremonyList.items.filter((i) => i.checked);
-    return ceremonyContinuous
-      ? scheduleBackward(ceremonyBaseTime, checked)
-      : scheduleSequential(ceremonyBaseTime, checked);
-  }, [ceremonyList.items, ceremonyBaseTime, ceremonyContinuous]);
+    const before = ceremonyBeforeList.items.filter((i) => i.checked);
+    const after = ceremonyAfterList.items.filter((i) => i.checked);
+    const afterTotal = after.reduce((s, i) => s + i.durationMin, 0);
+    const anchorStart = ceremonyContinuous
+      ? addMinutes(banquetStart, -(afterTotal + ceremonyAnchorDurationMin))
+      : ceremonyStart;
+    const beforeScheduled = scheduleBackward(anchorStart, before);
+    const anchorEnd = addMinutes(anchorStart, ceremonyAnchorDurationMin);
+    const afterScheduled = scheduleSequential(anchorEnd, after);
+    return { beforeScheduled, anchorStart, anchorEnd, afterScheduled };
+  }, [ceremonyBeforeList.items, ceremonyAfterList.items, ceremonyStart, ceremonyContinuous, banquetStart]);
+
+  // 出入門完成後、證婚開始前嘅空檔——安排午膳及外影
+  const lunchAndPhotoGap = useMemo(() => {
+    if (fetchingMode !== "anchor" || !hasCeremony) return null;
+    const gapStart =
+      anchorSchedule.afterScheduled.length > 0
+        ? anchorSchedule.afterScheduled[anchorSchedule.afterScheduled.length - 1].end
+        : anchorSchedule.anchorEnd;
+    const gapEnd =
+      ceremonySchedule.beforeScheduled.length > 0
+        ? ceremonySchedule.beforeScheduled[0].start
+        : ceremonySchedule.anchorStart;
+    const toMinutes = (t: string) => {
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + m;
+    };
+    const gapMinutes = toMinutes(gapEnd) - toMinutes(gapStart);
+    if (gapMinutes <= 0) return null;
+    return { start: gapStart, end: gapEnd };
+  }, [fetchingMode, hasCeremony, anchorSchedule, ceremonySchedule]);
 
   function buildLines(): string[] {
     const lines: string[] = [`${eventTitle} — Rundown`];
@@ -245,16 +269,23 @@ export default function RundownGenerator() {
       anchorSchedule.beforeScheduled.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
       lines.push(`${anchorSchedule.anchorStart} - ${anchorSchedule.anchorEnd}　${fetchingAnchorLabel}`);
       anchorSchedule.afterScheduled.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
-    } else if (fetchingMode === "prep") {
-      lines.push("", "【準備】");
-      prepSchedule.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
+    }
+    if (lunchAndPhotoGap) {
+      lines.push("", "【午膳及外影】");
+      lines.push(`${lunchAndPhotoGap.start} - ${lunchAndPhotoGap.end}　安排午膳及外影環節`);
     }
     if (hasCeremony) {
       lines.push("", "【證婚儀式】");
-      ceremonySchedule.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
+      ceremonySchedule.beforeScheduled.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
+      lines.push(
+        `${ceremonySchedule.anchorStart} - ${ceremonySchedule.anchorEnd}　${ceremonyAnchorLabel}`
+      );
+      ceremonySchedule.afterScheduled.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
     }
     lines.push("", `【${banquetTitleFor(banquetType)}】`);
-    banquetSchedule.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
+    banquetSchedule.beforeScheduled.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
+    lines.push(`${banquetSchedule.anchorStart} - ${banquetSchedule.anchorEnd}　${banquetAnchorLabel}`);
+    banquetSchedule.afterScheduled.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
     return lines;
   }
 
@@ -292,7 +323,7 @@ export default function RundownGenerator() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-ink">你哋想搞午宴定晚宴？</label>
+            <label className="text-sm font-medium text-ink">婚宴形式</label>
             <div className="mt-2 flex gap-2">
               <ModeButton active={banquetType === "lunch"} onClick={() => switchBanquetType("lunch")}>
                 午宴
@@ -305,36 +336,22 @@ export default function RundownGenerator() {
         </div>
 
         <div className="mt-6 rounded-xl border border-line p-4">
-          <label className="text-sm font-medium text-ink">有冇出入門 / 迎親？</label>
+          <label className="text-sm font-medium text-ink">是否設有出入門儀式（迎親）？</label>
           <div className="mt-2 flex flex-wrap gap-2">
             <ModeButton active={fetchingMode === "none"} onClick={() => setFetchingMode("none")}>
-              冇
+              不設
             </ModeButton>
             <ModeButton active={fetchingMode === "anchor"} onClick={() => setFetchingMode("anchor")}>
-              有出入門（睇吉時）
-            </ModeButton>
-            <ModeButton active={fetchingMode === "prep"} onClick={() => setFetchingMode("prep")}>
-              簡化準備（由化妝開始）
+              設有出入門儀式
             </ModeButton>
           </div>
           {fetchingMode === "anchor" && (
             <div className="mt-3">
-              <label className="text-xs text-muted">出門 / 接新娘吉時</label>
+              <label className="text-xs text-muted">出門吉時（新人完成女家奉茶、出閣離開女家嘅時刻）</label>
               <input
                 type="time"
                 value={fetchAnchorTime}
                 onChange={(e) => setFetchAnchorTime(e.target.value)}
-                className="mt-1 w-full max-w-xs rounded-lg border border-line bg-background px-3 py-2 text-sm"
-              />
-            </div>
-          )}
-          {fetchingMode === "prep" && (
-            <div className="mt-3">
-              <label className="text-xs text-muted">化妝師到達 / 準備開始時間</label>
-              <input
-                type="time"
-                value={prepStartTime}
-                onChange={(e) => setPrepStartTime(e.target.value)}
                 className="mt-1 w-full max-w-xs rounded-lg border border-line bg-background px-3 py-2 text-sm"
               />
             </div>
@@ -349,7 +366,7 @@ export default function RundownGenerator() {
               onChange={(e) => setHasCeremony(e.target.checked)}
               className="h-4 w-4 accent-accent"
             />
-            有冇證婚儀式？
+            是否設有證婚儀式？
           </label>
           {hasCeremony && (
             <div className="mt-3 space-y-3">
@@ -360,15 +377,15 @@ export default function RundownGenerator() {
                   onChange={(e) => setCeremonyContinuous(e.target.checked)}
                   className="h-4 w-4 accent-accent"
                 />
-                證婚同{banquetTitleFor(banquetType)}連續進行（來賓到齊後直接證婚，再直落{banquetTitleFor(banquetType)}，冇獨立開始時間）
+                證婚儀式緊接{banquetTitleFor(banquetType)}舉行（賓客到齊後隨即進行證婚，其後直接開始{banquetTitleFor(banquetType)}，毋須另設開始時間）
               </label>
               {ceremonyContinuous ? (
                 <p className="text-xs text-muted">
-                  將會根據{banquetTitleFor(banquetType)}開始時間（{banquetStart}）倒推證婚儀式嘅開始時間。
+                  將根據{banquetTitleFor(banquetType)}開始時間（{banquetStart}）倒推證婚儀式嘅開始時間。
                 </p>
               ) : (
                 <div>
-                  <label className="text-xs text-muted">證婚開始時間</label>
+                  <label className="text-xs text-muted">開始證婚儀式時間（宣讀誓詞及簽紙嗰刻）</label>
                   <input
                     type="time"
                     value={ceremonyStart}
@@ -384,6 +401,7 @@ export default function RundownGenerator() {
         <div className="mt-6 rounded-xl border border-line p-4">
           <label className="text-sm font-medium text-ink">
             {banquetTitleFor(banquetType)}開始時間
+            {banquetType === "dinner" && "（開席時間）"}
           </label>
           <input
             type="time"
@@ -398,29 +416,20 @@ export default function RundownGenerator() {
       {fetchingMode === "anchor" && (
         <div className="no-print rounded-2xl border border-line bg-card p-6">
           <h2 className="font-serif-display text-xl text-ink">{fetchingStepNum}. 迎親環節</h2>
-          <p className="mt-1 text-sm text-muted">揀返適用嘅環節，時間會自動由吉時倒推 / 順推。</p>
-          <h3 className="mt-5 text-sm font-medium text-accent-dark">吉時之前</h3>
+          <p className="mt-1 text-sm text-muted">
+            時間會自動由「出門（吉時）」倒推 / 順推。出門吉時係指新人完成女家奉茶、正式出閣離開女家嘅時刻；
+            如果新人冇擇吉時，呢個時間就取決於新人想幾點出門。以下骨幹時間點假設出入門喺同一間酒店進行。
+          </p>
+          <h3 className="mt-5 text-sm font-medium text-accent-dark">出門之前</h3>
           <div className="mt-2">
             <ChecklistEditor list={beforeList} />
           </div>
           <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 text-sm font-medium text-accent-dark">
             {anchorSchedule.anchorStart} - {anchorSchedule.anchorEnd}　{fetchingAnchorLabel}
           </div>
-          <h3 className="mt-5 text-sm font-medium text-accent-dark">吉時之後</h3>
+          <h3 className="mt-5 text-sm font-medium text-accent-dark">出門之後</h3>
           <div className="mt-2">
             <ChecklistEditor list={afterList} />
-          </div>
-        </div>
-      )}
-
-      {fetchingMode === "prep" && (
-        <div className="no-print rounded-2xl border border-line bg-card p-6">
-          <h2 className="font-serif-display text-xl text-ink">{fetchingStepNum}. 準備環節</h2>
-          <p className="mt-1 text-sm text-muted">
-            冇出入門儀式，由化妝師到達開始順推計晒每個環節。
-          </p>
-          <div className="mt-4">
-            <ChecklistEditor list={prepList} />
           </div>
         </div>
       )}
@@ -429,8 +438,19 @@ export default function RundownGenerator() {
       {hasCeremony && (
         <div className="no-print rounded-2xl border border-line bg-card p-6">
           <h2 className="font-serif-display text-xl text-ink">{ceremonyStepNum}. 證婚儀式環節</h2>
-          <div className="mt-4">
-            <ChecklistEditor list={ceremonyList} />
+          <p className="mt-1 text-sm text-muted">
+            時間會自動由「開始證婚儀式」倒推 / 順推。
+          </p>
+          <h3 className="mt-5 text-sm font-medium text-accent-dark">開始儀式之前</h3>
+          <div className="mt-2">
+            <ChecklistEditor list={ceremonyBeforeList} />
+          </div>
+          <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 text-sm font-medium text-accent-dark">
+            {ceremonySchedule.anchorStart} - {ceremonySchedule.anchorEnd}　{ceremonyAnchorLabel}
+          </div>
+          <h3 className="mt-5 text-sm font-medium text-accent-dark">完成儀式之後</h3>
+          <div className="mt-2">
+            <ChecklistEditor list={ceremonyAfterList} />
           </div>
         </div>
       )}
@@ -440,8 +460,17 @@ export default function RundownGenerator() {
         <h2 className="font-serif-display text-xl text-ink">
           {banquetStepNum}. {banquetTitleFor(banquetType)}環節
         </h2>
-        <div className="mt-4">
-          <ChecklistEditor list={banquetListShim} />
+        <p className="mt-1 text-sm text-muted">時間會自動由「開席」倒推 / 順推。</p>
+        <h3 className="mt-5 text-sm font-medium text-accent-dark">開席之前</h3>
+        <div className="mt-2">
+          <ChecklistEditor list={activeBanquetBeforeList} />
+        </div>
+        <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 text-sm font-medium text-accent-dark">
+          {banquetSchedule.anchorStart} - {banquetSchedule.anchorEnd}　{banquetAnchorLabel}
+        </div>
+        <h3 className="mt-5 text-sm font-medium text-accent-dark">開席之後</h3>
+        <div className="mt-2">
+          <ChecklistEditor list={activeBanquetAfterList} />
         </div>
       </div>
 
@@ -495,18 +524,16 @@ export default function RundownGenerator() {
             </div>
           )}
 
-          {fetchingMode === "prep" && (
+          {lunchAndPhotoGap && (
             <div>
-              <h3 className="font-serif-display text-lg text-accent-dark">準備</h3>
+              <h3 className="font-serif-display text-lg text-accent-dark">午膳及外影</h3>
               <div className="mt-3 space-y-2">
-                {prepSchedule.map((i) => (
-                  <div key={i.id} className="flex gap-4 text-sm">
-                    <span className="w-28 shrink-0 font-mono text-accent-dark">
-                      {i.start} – {i.end}
-                    </span>
-                    <span className="text-ink">{i.label}</span>
-                  </div>
-                ))}
+                <div className="flex gap-4 text-sm">
+                  <span className="w-28 shrink-0 font-mono text-accent-dark">
+                    {lunchAndPhotoGap.start} – {lunchAndPhotoGap.end}
+                  </span>
+                  <span className="text-ink">安排午膳及外影環節</span>
+                </div>
               </div>
             </div>
           )}
@@ -515,7 +542,21 @@ export default function RundownGenerator() {
             <div>
               <h3 className="font-serif-display text-lg text-accent-dark">證婚儀式</h3>
               <div className="mt-3 space-y-2">
-                {ceremonySchedule.map((i) => (
+                {ceremonySchedule.beforeScheduled.map((i) => (
+                  <div key={i.id} className="flex gap-4 text-sm">
+                    <span className="w-28 shrink-0 font-mono text-accent-dark">
+                      {i.start} – {i.end}
+                    </span>
+                    <span className="text-ink">{i.label}</span>
+                  </div>
+                ))}
+                <div className="flex gap-4 text-sm font-medium">
+                  <span className="w-28 shrink-0 font-mono text-accent-dark">
+                    {ceremonySchedule.anchorStart} – {ceremonySchedule.anchorEnd}
+                  </span>
+                  <span className="text-ink">{ceremonyAnchorLabel}</span>
+                </div>
+                {ceremonySchedule.afterScheduled.map((i) => (
                   <div key={i.id} className="flex gap-4 text-sm">
                     <span className="w-28 shrink-0 font-mono text-accent-dark">
                       {i.start} – {i.end}
@@ -532,7 +573,21 @@ export default function RundownGenerator() {
               {banquetTitleFor(banquetType)}
             </h3>
             <div className="mt-3 space-y-2">
-              {banquetSchedule.map((i) => (
+              {banquetSchedule.beforeScheduled.map((i) => (
+                <div key={i.id} className="flex gap-4 text-sm">
+                  <span className="w-28 shrink-0 font-mono text-accent-dark">
+                    {i.start} – {i.end}
+                  </span>
+                  <span className="text-ink">{i.label}</span>
+                </div>
+              ))}
+              <div className="flex gap-4 text-sm font-medium">
+                <span className="w-28 shrink-0 font-mono text-accent-dark">
+                  {banquetSchedule.anchorStart} – {banquetSchedule.anchorEnd}
+                </span>
+                <span className="text-ink">{banquetAnchorLabel}</span>
+              </div>
+              {banquetSchedule.afterScheduled.map((i) => (
                 <div key={i.id} className="flex gap-4 text-sm">
                   <span className="w-28 shrink-0 font-mono text-accent-dark">
                     {i.start} – {i.end}
