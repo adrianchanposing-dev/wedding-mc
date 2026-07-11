@@ -1,24 +1,29 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   BanquetType,
   CatalogItem,
   addMinutes,
   banquetTitleFor,
   ceremonyAfter,
+  ceremonyAnchorDesc,
   ceremonyAnchorDurationMin,
   ceremonyAnchorLabel,
   ceremonyBefore,
   dinnerAfter,
+  dinnerAnchorDesc,
   dinnerAnchorDurationMin,
   dinnerAnchorLabel,
   dinnerBefore,
   fetchingAfter,
+  fetchingAnchorDesc,
   fetchingAnchorDurationMin,
   fetchingAnchorLabel,
   fetchingBefore,
   lunchAfter,
+  lunchAnchorDesc,
   lunchAnchorDurationMin,
   lunchAnchorLabel,
   lunchBefore,
@@ -83,43 +88,53 @@ function ChecklistEditor({ list }: { list: ReturnType<typeof useChecklist> }) {
       {list.items.map((it, index) => (
         <div
           key={it.id}
-          className={`flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center ${
+          className={`rounded-xl border p-3 ${
             it.checked ? "border-line bg-background" : "border-line/60 bg-background/40 opacity-60"
           }`}
         >
-          <input
-            type="checkbox"
-            checked={it.checked}
-            onChange={() => list.toggle(it.id)}
-            className="h-4 w-4 shrink-0 accent-accent"
-          />
-          <input
-            value={it.label}
-            onChange={(e) => list.update(it.id, { label: e.target.value })}
-            className="flex-1 rounded-lg border border-line bg-card px-3 py-1.5 text-sm"
-          />
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => list.move(index, -1)}
-              disabled={index === 0}
-              className="rounded-full border border-line px-2 py-1 text-xs disabled:opacity-30"
-            >
-              ↑
-            </button>
-            <button
-              onClick={() => list.move(index, 1)}
-              disabled={index === list.items.length - 1}
-              className="rounded-full border border-line px-2 py-1 text-xs disabled:opacity-30"
-            >
-              ↓
-            </button>
-            <button
-              onClick={() => list.remove(it.id)}
-              className="rounded-full border border-line px-2 py-1 text-xs text-red-700 hover:bg-red-50"
-            >
-              刪除
-            </button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              type="checkbox"
+              checked={it.checked}
+              onChange={() => list.toggle(it.id)}
+              className="h-4 w-4 shrink-0 accent-accent"
+            />
+            <input
+              value={it.label}
+              onChange={(e) => list.update(it.id, { label: e.target.value })}
+              className="flex-1 rounded-lg border border-line bg-card px-3 py-1.5 text-sm"
+            />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => list.move(index, -1)}
+                disabled={index === 0}
+                className="rounded-full border border-line px-2 py-1 text-xs disabled:opacity-30"
+              >
+                ↑
+              </button>
+              <button
+                onClick={() => list.move(index, 1)}
+                disabled={index === list.items.length - 1}
+                className="rounded-full border border-line px-2 py-1 text-xs disabled:opacity-30"
+              >
+                ↓
+              </button>
+              <button
+                onClick={() => list.remove(it.id)}
+                className="rounded-full border border-line px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+              >
+                刪除
+              </button>
+            </div>
           </div>
+          {it.desc && (
+            <details className="mt-2 sm:pl-7">
+              <summary className="cursor-pointer text-xs text-accent-dark hover:underline">
+                呢個環節係咩？
+              </summary>
+              <p className="mt-1 text-xs leading-relaxed text-muted">{it.desc}</p>
+            </details>
+          )}
         </div>
       ))}
       <button
@@ -129,6 +144,18 @@ function ChecklistEditor({ list }: { list: ReturnType<typeof useChecklist> }) {
         + 新增環節
       </button>
     </div>
+  );
+}
+
+function AnchorNote({ desc }: { desc?: string }) {
+  if (!desc) return null;
+  return (
+    <details className="mt-1">
+      <summary className="cursor-pointer text-xs text-accent-dark hover:underline">
+        呢個環節係咩？
+      </summary>
+      <p className="mt-1 text-xs leading-relaxed text-accent-dark/80">{desc}</p>
+    </details>
   );
 }
 
@@ -190,6 +217,7 @@ export default function RundownGenerator() {
   const activeBanquetBeforeList = banquetType === "dinner" ? dinnerBeforeList : lunchBeforeList;
   const activeBanquetAfterList = banquetType === "dinner" ? dinnerAfterList : lunchAfterList;
   const banquetAnchorLabel = banquetType === "dinner" ? dinnerAnchorLabel : lunchAnchorLabel;
+  const banquetAnchorDesc = banquetType === "dinner" ? dinnerAnchorDesc : lunchAnchorDesc;
   const banquetAnchorDurationMin =
     banquetType === "dinner" ? dinnerAnchorDurationMin : lunchAnchorDurationMin;
 
@@ -292,6 +320,19 @@ export default function RundownGenerator() {
 
   return (
     <div className="space-y-10">
+      {/* 新手提示 */}
+      <div className="no-print rounded-2xl border border-accent/30 bg-accent/5 p-5 text-sm text-ink">
+        <p className="font-medium text-accent-dark">第一次籌備婚禮，唔識啲術語？</p>
+        <p className="mt-1 text-muted">
+          迎親、證婚儀式、敬酒呢啲字眼下面都有「呢個環節係咩？」可以撳開睇解釋。
+          如果想先了解成個流程點編排，可以睇
+          <Link href="/prep#glossary" className="text-accent-dark underline underline-offset-2">
+            婚禮術語小百科同籌備懶人包
+          </Link>
+          。未有答案都可以先隨便填，跟住印低嚟同伴侶/司儀慢慢傾。
+        </p>
+      </div>
+
       {/* Step 1: 基本設定 */}
       <div className="no-print rounded-2xl border border-line bg-card p-6">
         <h2 className="font-serif-display text-xl text-ink">1. 基本設定</h2>
@@ -319,6 +360,10 @@ export default function RundownGenerator() {
 
         <div className="mt-6 rounded-xl border border-line p-4">
           <label className="text-sm font-medium text-ink">是否設有出入門儀式（迎親）？</label>
+          <p className="mt-1 text-xs text-muted">
+            即係新郎去新娘屋企接新娘嗰個傳統環節（玩遊戲攞開門利是、拜見女家父母、斟茶）。
+            唔設都可以，好多新人會簡化或者跳過。未決定？可以先揀「設有」睇下大約要幾耐，遲啲隨時改。
+          </p>
           <div className="mt-2 flex flex-wrap gap-2">
             <ModeButton active={fetchingMode === "none"} onClick={() => setFetchingMode("none")}>
               不設
@@ -350,6 +395,10 @@ export default function RundownGenerator() {
             />
             是否設有證婚儀式？
           </label>
+          <p className="mt-1 pl-6 text-xs text-muted">
+            即係現場宣讀誓詞、交換戒指、簽結婚證書嘅法律程序（通常由律師/主禮人主持）。
+            如果你哋已經去咗婚姻登記處註冊，婚禮當日可以唔使再設呢個環節。
+          </p>
           {hasCeremony && (
             <div className="mt-3">
               <label className="text-xs text-muted">開始證婚儀式時間（宣讀誓詞及簽紙嗰刻）</label>
@@ -391,6 +440,7 @@ export default function RundownGenerator() {
           </div>
           <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 text-sm font-medium text-accent-dark">
             {anchorSchedule.anchorStart} - {anchorSchedule.anchorEnd}　{fetchingAnchorLabel}
+            <AnchorNote desc={fetchingAnchorDesc} />
           </div>
           <h3 className="mt-5 text-sm font-medium text-accent-dark">出門之後</h3>
           <div className="mt-2">
@@ -412,6 +462,7 @@ export default function RundownGenerator() {
           </div>
           <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 text-sm font-medium text-accent-dark">
             {ceremonySchedule.anchorStart} - {ceremonySchedule.anchorEnd}　{ceremonyAnchorLabel}
+            <AnchorNote desc={ceremonyAnchorDesc} />
           </div>
           <h3 className="mt-5 text-sm font-medium text-accent-dark">完成儀式之後</h3>
           <div className="mt-2">
@@ -432,6 +483,7 @@ export default function RundownGenerator() {
         </div>
         <div className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-3 text-sm font-medium text-accent-dark">
           {banquetSchedule.anchorStart} - {banquetSchedule.anchorEnd}　{banquetAnchorLabel}
+          <AnchorNote desc={banquetAnchorDesc} />
         </div>
         <h3 className="mt-5 text-sm font-medium text-accent-dark">開席之後</h3>
         <div className="mt-2">
@@ -454,6 +506,10 @@ export default function RundownGenerator() {
           列印 / 儲存 PDF
         </button>
       </div>
+      <p className="no-print text-xs text-muted">
+        未有定案都冇問題——先下載呢個版本，同伴侶、家人或者司儀傾一傾邊啲環節要保留、邊啲可以刪走，
+        之後隨時返嚟呢頁再調整就得。
+      </p>
 
       {/* Preview / print output */}
       <div className="rounded-2xl border border-line bg-card p-6">

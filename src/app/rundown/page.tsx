@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import RundownGenerator from "@/components/rundown/RundownGenerator";
 
 export const metadata: Metadata = {
@@ -18,7 +19,11 @@ export default function RundownPage() {
       <p className="mt-4 max-w-2xl text-muted">
         答幾條基本問題（午宴定晚宴、有冇迎親、有冇證婚儀式），
         再喺每個環節清單度勾選同調整時長，時間表會即時計算。
-        完成後可以列印或者下載做討論用。
+        完成後可以列印或者下載做討論用。未搞清楚啲術語？可以先睇
+        <Link href="/prep#glossary" className="text-accent-dark underline underline-offset-2">
+          婚禮術語小百科
+        </Link>
+        。
       </p>
       <div className="mt-10">
         <RundownGenerator />

@@ -72,6 +72,53 @@ const formats = [
   },
 ];
 
+const glossary = [
+  {
+    term: "迎親 / 出入門儀式",
+    desc: "新郎去新娘屋企接新娘嘅傳統環節，包括開門利是、玩遊戲、愛的宣言，再向女家父母奉茶、正式出閣。",
+  },
+  {
+    term: "出門吉時",
+    desc: "新人完成女家奉茶、正式出閣離開女家嘅時刻。如果有擇日師擇日就會有指定時辰；冇擇日都可以自己揀方便嘅時間。",
+  },
+  {
+    term: "奉茶",
+    desc: "新人向父母、長輩斟茶敬奉，表達感謝，通常伴隨長輩派利是 / 金飾。",
+  },
+  {
+    term: "出閣",
+    desc: "新娘正式離開自己屋企、由女兒身份過渡做新婦嘅傳統講法，即係「出門」嗰一刻。",
+  },
+  {
+    term: "證婚儀式",
+    desc: "現場宣讀誓詞、交換戒指、簽署結婚證書嘅法律程序，一般由律師或者主禮人主持。同去婚姻登記處註冊唔同，可以喺婚禮當日進行，亦可以已經預先註冊、當日只做儀式性補充。",
+  },
+  {
+    term: "行大運",
+    desc: "新人出門後手拖手兜個圈祈福嘅環節，寓意婚後大吉大利，期間可以順道拍攝花絮。",
+  },
+  {
+    term: "Dummy Cake",
+    desc: "切餅環節用嘅「假蛋糕」（通常最底層先係真蛋糕），畀新人切餅影相用，唔使切晒全個蛋糕。",
+  },
+  {
+    term: "交杯",
+    desc: "新人手臂交叉勾住對方，一齊飲杯中酒嘅儀式，象徵同心。",
+  },
+  {
+    term: "早拍晚播",
+    desc: "婚禮當日早上（迎親、儀式）拍攝嘅花絮短片，喺晚宴期間播放畀賓客睇。",
+  },
+  {
+    term: "敬酒",
+    desc: "新人逐圍向賓客斟酒、道謝嘅環節，一般喺晚宴後段進行。",
+  },
+  {
+    term: "姊妹團 / 兄弟團",
+    desc: "新娘 / 新郎嘅閨蜜 / 好友團隊，喺迎親環節負責設關卡、把關，亦會協助當日大小事務。",
+  },
+];
+
 const faqs = [
   {
     q: "幾時應該開始搵司儀？",
@@ -120,6 +167,26 @@ export default function PrepPage() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Glossary */}
+      <section id="glossary" className="mt-16 scroll-mt-24">
+        <h2 className="font-serif-display text-2xl text-ink">婚禮術語小百科</h2>
+        <p className="mt-2 text-sm text-muted">
+          第一次籌備婚禮？以下係 Rundown 入面最常見嘅術語白話解釋，睇完再返去
+          <Link href="/rundown" className="text-accent-dark underline underline-offset-2">
+            Rundown 生成器
+          </Link>
+          會清楚好多。
+        </p>
+        <div className="mt-6 divide-y divide-line rounded-2xl border border-line bg-card">
+          {glossary.map((g) => (
+            <div key={g.term} className="p-6">
+              <h3 className="font-medium text-ink">{g.term}</h3>
+              <p className="mt-2 text-sm text-muted">{g.desc}</p>
             </div>
           ))}
         </div>
