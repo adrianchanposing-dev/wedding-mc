@@ -595,7 +595,7 @@ export default function RundownGenerator() {
                 {ceremonyTiming === "standalone" && (
                   <>
                     <p className="mt-3 text-xs text-muted">
-                      席前證婚於宴會開始之前、另設時段進行，賓客毋須在場，完成後才正式入座開席。
+                      證婚儀式於宴會開始之前、另設時段及場地（視乎新人選擇）進行。
                     </p>
                     <div className="mt-3">
                       <label className="text-xs text-muted">開始證婚儀式的時間</label>
@@ -610,7 +610,7 @@ export default function RundownGenerator() {
                 )}
                 {ceremonyTiming === "embedded" && (
                   <p className="mt-3 text-xs text-muted">
-                    入席證婚將插入宴會正式開席之後進行，賓客已在座，毋須另外安排時間或場地。
+                    證婚儀式插入宴會之中，於正式開席、賓客已經入座之後進行。
                   </p>
                 )}
               </>
