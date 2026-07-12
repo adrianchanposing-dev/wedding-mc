@@ -2,10 +2,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { site, portfolioCategories } from "@/lib/site";
 import ContactSection from "@/components/ContactSection";
+import JsonLd from "@/components/JsonLd";
+
+const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: site.brand,
+  description:
+    "MC Adrian Chan — 香港婚禮及宴會司儀，主持出入門、證婚儀式、午宴及晚宴等環節。",
+  url: site.url,
+  image: `${site.url}/opengraph-image`,
+  email: site.email,
+  telephone: site.whatsappDisplay,
+  areaServed: {
+    "@type": "City",
+    name: "Hong Kong",
+  },
+  sameAs: [site.instagramUrl],
+};
 
 export default function Home() {
   return (
     <div>
+      <JsonLd data={localBusinessSchema} />
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-line">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-6 py-24 md:py-32">
