@@ -102,7 +102,14 @@ export const ceremonyLawyer = fixedItem(
   "c-lawyer",
   "律師到場，接收證婚所需文件",
   15,
-  "負責證婚的律師到場，姊妹團或兄弟團將身份證、戒指、證書套等文件交予律師核對。"
+  "負責證婚的律師到場，姊妹團或兄弟團將身份證、戒指、證書套等文件交予律師核對。獨立舉行時提前到場核對文件；入席證婚則於開席前15分鐘到場。"
+);
+
+export const ceremonyWelcome = fixedItem(
+  "c-welcome",
+  "司儀歡迎並引領進場",
+  10,
+  "司儀歡迎在場親友，引領負責進場的人員（花女、伴郎伴娘、家長等）步入場地。"
 );
 
 // 進場形式：三者之間不設固定次序，由司儀臨場安排
@@ -112,23 +119,33 @@ export const ceremonyEntryOptions: CatalogItem[] = [
   optionalItem("c-opt-siblings-entry", "兄弟姊妹團進場", 3, undefined, false),
 ];
 
-export const ceremonyAnchorLabel = "證婚儀式（宣讀誓詞、交換戒指、簽署證書）";
+export const ceremonyAnchorLabel = "證婚儀式";
 export const ceremonyAnchorDurationMin = 20;
 export const ceremonyAnchorDesc =
-  "由律師主持，宣讀誓詞、交換戒指、簽署結婚證書，正式完成法律上的證婚程序。";
+  "由律師主持，依序交予主持人、宣讀誓詞、交換戒指、揭頭紗、親吻祝賀、簽紙，正式完成法律上的證婚程序。";
+
+// 證婚核心程序嘅內部次序（不設獨立時間，全部包含喺證婚儀式呢個時間點之內）
+export const ceremonyCoreSteps: string[] = [
+  "交予律師 / 主持人",
+  "宣讀誓詞",
+  "交換戒指",
+  "揭頭紗",
+  "親吻祝賀",
+  "簽紙",
+];
 
 export const ceremonyOptCake = optionalItem(
   "c-opt-cake",
   "切結婚蛋糕",
   10,
-  "證婚儀式後隨即切結婚蛋糕，留下紀念畫面。"
+  "簽紙後隨即切結婚蛋糕，留下紀念畫面。"
 );
 
 export const ceremonyPhoto = fixedItem(
   "c-photo",
   "完成證婚，開始大合照",
   20,
-  "完成證婚儀式後，與親友合照留念。"
+  "完成證婚儀式後，與親友合照留念。獨立舉行時方有此項；入席證婚則不設獨立大合照。"
 );
 
 export const ceremonyOptBouquet = optionalItem("c-opt-bouquet", "拋花球", 10, undefined, false);
