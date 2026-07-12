@@ -7,13 +7,21 @@ export type CatalogItem = {
   durationMin: number;
   defaultChecked: boolean;
   desc?: string;
+  /** 若設定，代表此環節時長有走盞空間，可在需要時縮短至此下限，藉以吸收前後環節的輕微重疊。 */
+  minDurationMin?: number;
 };
 
 export type BanquetType = "lunch" | "dinner";
 export type CeremonyTimingMode = "standalone" | "embedded";
 
-function fixedItem(id: string, label: string, durationMin: number, desc?: string): CatalogItem {
-  return { id, label, kind: "fixed", durationMin, defaultChecked: true, desc };
+function fixedItem(
+  id: string,
+  label: string,
+  durationMin: number,
+  desc?: string,
+  minDurationMin?: number
+): CatalogItem {
+  return { id, label, kind: "fixed", durationMin, defaultChecked: true, desc, minDurationMin };
 }
 
 function optionalItem(
@@ -68,7 +76,8 @@ export const fetchingAfter: CatalogItem[] = [
     "e-enter-groom-home",
     "入門（男家奉茶及拍照）",
     45,
-    "新人步入男家門，向男家父母及長輩奉茶，並拍攝相關合照。"
+    "新人步入男家門，向男家父母及長輩奉茶，並拍攝相關合照。",
+    30
   ),
 ];
 
@@ -140,7 +149,8 @@ export const dinnerBefore: CatalogItem[] = [
     "d-reception",
     "迎賓時段（含影相、奉茶）",
     60,
-    "賓客陸續抵達會場簽到，新人於場外迎賓、拍照，亦可安排補奉茶予未出席早上茶敘的親友。"
+    "賓客陸續抵達會場簽到，新人於場外迎賓、拍照，亦可安排補奉茶予未出席早上茶敘的親友。",
+    30
   ),
   fixedItem("d-bride-change", "新娘更換主婚紗及補妝", 30, "新娘更換主婚紗並補妝，準備開席入場。"),
 ];

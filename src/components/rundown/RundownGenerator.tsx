@@ -79,6 +79,21 @@ function toRuntime(item: CatalogItem): RuntimeItem {
   return { ...item, id: makeId(), checked: true };
 }
 
+// 縮短首個有走盞空間（設有 minDurationMin）嘅環節，藉以吸收與前後環節嘅重疊，
+// 縮短幅度不會低於該環節的下限。
+function applyFlexShrink(items: RuntimeItem[], shrinkMinutes: number): RuntimeItem[] {
+  if (shrinkMinutes <= 0) return items;
+  const idx = items.findIndex((it) => it.minDurationMin !== undefined && it.minDurationMin < it.durationMin);
+  if (idx === -1) return items;
+  const item = items[idx];
+  const maxShrink = item.durationMin - (item.minDurationMin ?? item.durationMin);
+  const actualShrink = Math.min(shrinkMinutes, maxShrink);
+  if (actualShrink <= 0) return items;
+  const next = [...items];
+  next[idx] = { ...item, durationMin: item.durationMin - actualShrink };
+  return next;
+}
+
 function ModeButton({
   active,
   onClick,
@@ -211,7 +226,8 @@ export default function RundownGenerator() {
   const entryBeforeFixed = useMemo(() => fetchingBefore.map(toRuntime), []);
   const entryAfterFixed = useMemo(() => fetchingAfter.map(toRuntime), []);
 
-  const entrySchedule = useMemo(() => {
+  // 出入門時間表（採用預設時長）——用作偵測與下一環節嘅重疊
+  const entryScheduleRaw = useMemo(() => {
     const beforeScheduled = scheduleBackward(fetchAnchorTime, entryBeforeFixed);
     const anchorEnd = addMinutes(fetchAnchorTime, fetchingAnchorDurationMin);
     const afterScheduled = scheduleSequential(anchorEnd, entryAfterFixed);
@@ -262,9 +278,23 @@ export default function RundownGenerator() {
       desc: ceremonyAnchorDesc,
       durationMin: ceremonyAnchorDurationMin,
     };
-    const beforeItems: RuntimeItem[] = isEmbedded
+    let beforeItems: RuntimeItem[] = isEmbedded
       ? [...banquetBeforeFixed, ...ceremonyBeforeItems, ceremonyAnchorRow, ...ceremonyAfterItems]
       : banquetBeforeFixed;
+
+    // 獨立舉行嘅證婚若完成時間遲於宴會前置環節嘅開始時間，縮短「迎賓時段」（可低至30分鐘）以吸收重疊
+    if (!isEmbedded && ceremonyMode === "yes" && ceremonyTiming === "standalone") {
+      const ceremonyEnd =
+        standaloneCeremonySchedule.afterScheduled.length > 0
+          ? standaloneCeremonySchedule.afterScheduled[standaloneCeremonySchedule.afterScheduled.length - 1].end
+          : standaloneCeremonySchedule.anchorEnd;
+      const rawBeforeScheduled = scheduleBackward(banquetStart, beforeItems);
+      const rawStart = rawBeforeScheduled.length > 0 ? rawBeforeScheduled[0].start : banquetStart;
+      const overlapMin = toMinutes(ceremonyEnd) - toMinutes(rawStart);
+      if (overlapMin > 0) {
+        beforeItems = applyFlexShrink(beforeItems, overlapMin);
+      }
+    }
 
     const beforeScheduled = scheduleBackward(banquetStart, beforeItems);
     const anchorEnd = addMinutes(banquetStart, banquetAnchorDurationMin);
@@ -288,7 +318,42 @@ export default function RundownGenerator() {
       afterScheduled,
       embeddedCeremonyAnchor,
     };
-  }, [isEmbedded, banquetBeforeFixed, ceremonyBeforeItems, ceremonyAfterItems, banquetStart, preshoot.items, banquetAfterFixed]);
+  }, [
+    isEmbedded,
+    banquetBeforeFixed,
+    ceremonyBeforeItems,
+    ceremonyAfterItems,
+    banquetStart,
+    preshoot.items,
+    banquetAfterFixed,
+    ceremonyMode,
+    ceremonyTiming,
+    standaloneCeremonySchedule,
+  ]);
+
+  // 出入門完成後下一個環節嘅開始時間（獨立證婚或宴會前置環節）
+  const nextStartAfterEntry = useMemo(() => {
+    if (ceremonyMode === "yes" && ceremonyTiming === "standalone") {
+      return standaloneCeremonySchedule.beforeScheduled.length > 0
+        ? standaloneCeremonySchedule.beforeScheduled[0].start
+        : standaloneCeremonySchedule.anchorStart;
+    }
+    return banquetSchedule.beforeScheduled.length > 0 ? banquetSchedule.beforeScheduled[0].start : banquetSchedule.anchorStart;
+  }, [ceremonyMode, ceremonyTiming, standaloneCeremonySchedule, banquetSchedule]);
+
+  // 出入門完成時間若遲於下一環節開始時間，縮短「入門」（可低至30分鐘）以吸收重疊
+  const entrySchedule = useMemo(() => {
+    if (fetchingMode !== "yes") return entryScheduleRaw;
+    const rawEnd =
+      entryScheduleRaw.afterScheduled.length > 0
+        ? entryScheduleRaw.afterScheduled[entryScheduleRaw.afterScheduled.length - 1].end
+        : entryScheduleRaw.anchorEnd;
+    const overlapMin = toMinutes(rawEnd) - toMinutes(nextStartAfterEntry);
+    if (overlapMin <= 0) return entryScheduleRaw;
+    const adjustedAfterFixed = applyFlexShrink(entryAfterFixed, overlapMin);
+    const afterScheduled = scheduleSequential(entryScheduleRaw.anchorEnd, adjustedAfterFixed);
+    return { ...entryScheduleRaw, afterScheduled };
+  }, [fetchingMode, entryScheduleRaw, nextStartAfterEntry, entryAfterFixed]);
 
   // 出入門完成後、獨立證婚開始前的空檔——安排午膳及外影
   const gapBeforeNextBlock = useMemo(() => {
@@ -315,52 +380,6 @@ export default function RundownGenerator() {
     ceremonyTiming === "standalone"
       ? standaloneCeremonySchedule.anchorStart
       : (banquetSchedule.embeddedCeremonyAnchor?.start ?? "");
-
-  // 檢查各環節之間會否時間重疊，及早提醒新人調整
-  const scheduleWarnings = useMemo(() => {
-    const warnings: string[] = [];
-
-    if (fetchingMode === "yes") {
-      const entryEnd =
-        entrySchedule.afterScheduled.length > 0
-          ? entrySchedule.afterScheduled[entrySchedule.afterScheduled.length - 1].end
-          : entrySchedule.anchorEnd;
-      let nextStart: string;
-      let nextLabel: string;
-      if (ceremonyMode === "yes" && ceremonyTiming === "standalone") {
-        nextStart =
-          standaloneCeremonySchedule.beforeScheduled.length > 0
-            ? standaloneCeremonySchedule.beforeScheduled[0].start
-            : standaloneCeremonySchedule.anchorStart;
-        nextLabel = "證婚儀式";
-      } else {
-        nextStart =
-          banquetSchedule.beforeScheduled.length > 0 ? banquetSchedule.beforeScheduled[0].start : banquetSchedule.anchorStart;
-        nextLabel = banquetTitleFor(banquetType);
-      }
-      if (toMinutes(nextStart) < toMinutes(entryEnd)) {
-        warnings.push(
-          `出入門環節預計 ${entryEnd} 完成，但${nextLabel}已安排於 ${nextStart} 開始，兩者時間重疊，請調整出門時間或${nextLabel}的開始時間。`
-        );
-      }
-    }
-
-    if (ceremonyMode === "yes" && ceremonyTiming === "standalone") {
-      const ceremonyEnd =
-        standaloneCeremonySchedule.afterScheduled.length > 0
-          ? standaloneCeremonySchedule.afterScheduled[standaloneCeremonySchedule.afterScheduled.length - 1].end
-          : standaloneCeremonySchedule.anchorEnd;
-      const banquetLeadStart =
-        banquetSchedule.beforeScheduled.length > 0 ? banquetSchedule.beforeScheduled[0].start : banquetSchedule.anchorStart;
-      if (toMinutes(banquetLeadStart) < toMinutes(ceremonyEnd)) {
-        warnings.push(
-          `證婚儀式預計 ${ceremonyEnd} 完成，但${banquetTitleFor(banquetType)}已安排於 ${banquetLeadStart} 開始準備，兩者時間重疊，請調整證婚開始時間或${banquetTitleFor(banquetType)}開始時間。`
-        );
-      }
-    }
-
-    return warnings;
-  }, [fetchingMode, ceremonyMode, ceremonyTiming, entrySchedule, standaloneCeremonySchedule, banquetSchedule, banquetType]);
 
   function toLines(items: ScheduledItem[]): string[] {
     return items.map((i) => `${timePoint(i.start, i.end)}　${i.label}`);
@@ -592,14 +611,6 @@ export default function RundownGenerator() {
           </div>
         </div>
       </div>
-
-      {scheduleWarnings.length > 0 && (
-        <div className="no-print space-y-2 rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-          {scheduleWarnings.map((warning) => (
-            <p key={warning}>{warning}</p>
-          ))}
-        </div>
-      )}
 
       {/* Step 2：出入門詳情 */}
       {fetchingMode === "yes" && (
