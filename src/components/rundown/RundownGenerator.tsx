@@ -311,7 +311,7 @@ export default function RundownGenerator() {
   }, [fetchingMode, ceremonyMode, anchorSchedule, ceremonySchedule]);
 
   function buildLines(): string[] {
-    const lines: string[] = [`${eventTitle} — Rundown`];
+    const lines: string[] = [`${eventTitle} — 囍程表`];
     if (fetchingMode === "anchor") {
       lines.push("", "【迎親】");
       anchorSchedule.beforeScheduled.forEach((i) => lines.push(`${i.start} - ${i.end}　${i.label}`));
@@ -419,7 +419,7 @@ export default function RundownGenerator() {
           </div>
           {fetchingMode === "anchor" && (
             <div className="mt-3">
-              <label className="text-xs text-muted">出門吉時（新人完成女家奉茶、正式出閣離開女家的時刻）</label>
+              <label className="text-xs text-muted">出門吉時（新人完成女家奉茶、正式離開女家的時刻）</label>
               <input
                 type="time"
                 value={fetchAnchorTime}
@@ -501,7 +501,7 @@ export default function RundownGenerator() {
         <div className="no-print rounded-2xl border border-line bg-card p-6">
           <h2 className="font-serif-display text-xl text-ink">{fetchingStepNum}. 迎親環節</h2>
           <p className="mt-1 text-sm text-muted">
-            時間將自動由「出門（吉時）」倒推或順推。出門吉時係指新人完成女家奉茶、正式出閣離開女家的時刻；
+            時間將自動由「出門（吉時）」倒推或順推。出門吉時係指新人完成女家奉茶、正式離開女家的時刻；
             若新人未擇吉時，此時間則取決於新人期望出門的時刻。以下骨幹時間點假設出入門於同一間酒店進行。
           </p>
           <div className="mt-5">

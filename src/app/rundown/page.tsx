@@ -3,8 +3,8 @@ import Link from "next/link";
 import RundownGenerator from "@/components/rundown/RundownGenerator";
 
 export const metadata: Metadata = {
-  title: "Rundown 生成器 | MC Adrian Chan",
-  description: "婚禮流程 Rundown 生成器：回答數條問題，選取適用的環節，自動計算每個環節的時間表。",
+  title: "囍程表 | MC Adrian Chan",
+  description: "婚禮囍程表：回答數條問題，選取適用的環節，自動計算每個環節的時間表。",
 };
 
 export default function RundownPage() {
@@ -14,7 +14,7 @@ export default function RundownPage() {
         Tool
       </p>
       <h1 className="mt-3 font-serif-display text-4xl text-ink">
-        Rundown 生成器
+        囍程表
       </h1>
       <p className="mt-4 max-w-2xl text-muted">
         回答數條基本問題（午宴或晚宴、有否迎親、有否證婚儀式），

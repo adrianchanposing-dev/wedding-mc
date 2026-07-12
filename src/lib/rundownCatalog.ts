@@ -18,7 +18,7 @@ function item(
   return { id, label, durationMin, defaultChecked, desc };
 }
 
-// 迎親（以出門吉時做錨點——即新人完成女家奉茶、正式出閣離開女家嘅時刻）
+// 迎親（以出門吉時做錨點——即新人完成女家奉茶、正式離開女家嘅時刻）
 // 骨幹時間點（假設出入門喺同一間酒店進行）：
 // 化妝師到場 → （150分鐘）→ 攝影師到場，拍攝新娘及姊妹團花絮 → （60分鐘）→ 兄弟團到場
 // → （30分鐘）→ 接新娘環節（開門利是／玩遊戲／愛的宣言／女家奉茶，共45分鐘）→ 出門（吉時）
@@ -68,7 +68,7 @@ export const fetchingAfter: CatalogItem[] = [
 export const fetchingAnchorLabel = "出門（吉時）";
 export const fetchingAnchorDurationMin = 0;
 export const fetchingAnchorDesc =
-  "新人正式完成女家奉茶、出閣離開女家的時刻——若有擇日師擇定吉時，即依所訂時辰進行；若未擇吉時，則由新人自行決定出門的時刻。";
+  "新人正式完成女家奉茶、離開女家的時刻——若有擇日師擇定吉時，即依所訂時辰進行；若未擇吉時，則由新人自行決定出門的時刻。";
 
 // 證婚儀式（以「開始證婚儀式」做錨點）
 // 骨幹時間點：新人 / MC 到達（證婚前1小時）→（45分鐘）→ 律師到達（證婚前15分鐘）
@@ -104,7 +104,7 @@ export const ceremonyAnchorDesc =
 
 // 午宴（以「開席」做錨點——即午宴正式開始嘅時刻；同晚宴唔同嘅係冇獨立迎賓時段）
 // 骨幹時間點：新娘換主婚紗及補妝（30分鐘）
-// → 開席／午宴正式開始（司儀致辭／成長片段／新人進場／切餅／交杯／致辭／祝酒／上菜，30分鐘）
+// → 開席／午宴正式開始（司儀致辭／成長片段／新人進場／切餅／合巹交杯／致辭／祝酒／上菜，30分鐘）
 // →（30分鐘）→ 新娘換敬酒裝 →（60分鐘）→ 奉茶／敬酒／大合照 →（15分鐘）→ 送客
 export const lunchBefore: CatalogItem[] = [
   item(
@@ -127,14 +127,14 @@ export const lunchAfter: CatalogItem[] = [
 ];
 
 export const lunchAnchorLabel =
-  "午宴正式開始（司儀致辭 / 成長片段，如有 / 新人進場 / 切餅 Dummy Cake / 交杯 / 致辭 / 祝酒 / 上菜）";
+  "午宴正式開始（司儀致辭 / 成長片段，如有 / 新人進場 / 切餅 Dummy Cake / 合巹交杯 / 致辭 / 祝酒 / 上菜）";
 export const lunchAnchorDurationMin = 30;
 export const lunchAnchorDesc =
-  "司儀開場致辭、播放成長片段（如有）、新人正式進場，接著切餅（Dummy Cake）、交杯，雙方致辭、祝酒，然後開始上菜。";
+  "司儀開場致辭、播放成長片段（如有）、新人正式進場，接著切餅（Dummy Cake）、合巹交杯，雙方致辭、祝酒，然後開始上菜。";
 
 // 晚宴（以「開席」做錨點——即晚宴正式開始嘅時刻）
 // 骨幹時間點：迎賓時段（含影相／奉茶／迎賓）→（30分鐘）→ 新娘換主婚紗及補妝
-// → 開席／晚宴正式開始（司儀致辭／成長片段／新人進場／切餅／交杯／致辭／祝酒／上菜，30分鐘）
+// → 開席／晚宴正式開始（司儀致辭／成長片段／新人進場／切餅／合巹交杯／致辭／祝酒／上菜，30分鐘）
 // →（30分鐘）→ 新娘換紅裙 →（60分鐘）→ 早拍晚播／奉茶／敬酒／大合照 →（15分鐘）→ 送客
 export const dinnerBefore: CatalogItem[] = [
   item(
@@ -163,10 +163,10 @@ export const dinnerAfter: CatalogItem[] = [
 ];
 
 export const dinnerAnchorLabel =
-  "晚宴正式開始（司儀致辭 / 成長片段，如有 / 新人進場 / 切餅 Dummy Cake / 交杯 / 致辭 / 祝酒 / 上菜）";
+  "晚宴正式開始（司儀致辭 / 成長片段，如有 / 新人進場 / 切餅 Dummy Cake / 合巹交杯 / 致辭 / 祝酒 / 上菜）";
 export const dinnerAnchorDurationMin = 30;
 export const dinnerAnchorDesc =
-  "司儀開場致辭、播放成長片段（如有）、新人正式進場，接著切餅（Dummy Cake）、交杯，雙方致辭、祝酒，然後開始上菜。";
+  "司儀開場致辭、播放成長片段（如有）、新人正式進場，接著切餅（Dummy Cake）、合巹交杯，雙方致辭、祝酒，然後開始上菜。";
 
 export function banquetTitleFor(type: BanquetType): string {
   return type === "lunch" ? "午宴" : "晚宴";

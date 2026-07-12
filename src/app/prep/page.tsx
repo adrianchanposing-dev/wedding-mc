@@ -10,7 +10,7 @@ const timeline = [
   {
     when: "婚禮前 6–12 個月",
     items: [
-      "決定婚禮形式（中式敬茶、教堂證婚、戶外證婚、酒店晚宴等）及大約人數",
+      "決定婚禮組成（有否出入門、證婚儀式形式、午宴或晚宴等）及大約人數",
       "落實場地、日期與時間",
       "開始物色司儀、攝影 / 攝錄、化妝、餐飲等主要供應商",
     ],
@@ -26,7 +26,7 @@ const timeline = [
   {
     when: "婚禮前 1 個月",
     items: [
-      "與司儀敲定詳細 Rundown（各環節時間、負責人、串場重點）",
+      "與司儀敲定詳細囍程表（各環節時間、負責人、串場重點）",
       "與攝影 / 攝錄、場地確認流程時間表一致",
       "備妥背景音樂、簡報 / 相片，以及所需道具",
     ],
@@ -36,38 +36,38 @@ const timeline = [
     items: [
       "與司儀、場地作最後綵排或視像對稿",
       "確認最終人數、座位表、特別來賓（需要點名或敬酒的親友）",
-      "備妥 Rundown 印本，分發予核心團隊（新人、兄弟姊妹、家長、場地聯絡人）",
+      "備妥囍程表印本，分發予核心團隊（新人、兄弟姊妹、家長、場地聯絡人）",
     ],
   },
 ];
 
-const formats = [
+const flowParts = [
   {
-    title: "中式敬茶 + 酒樓晚宴",
+    title: "出入門儀式（迎親）",
     points: [
-      "敬茶環節通常於出門 / 迎親後進行，時間雖具彈性，仍須預留鬆動空間",
-      "晚宴以敬酒、遊戲、致辭為主軸，司儀須熟悉桌數及敬酒路線",
+      "傳統上以中式敬茶婚禮較為常見，惟現時不少西式或教堂婚禮的新人亦會加入此環節",
+      "是否設有，主要視乎新人意願及家庭傳統，與場地或婚宴形式並無必然關係",
     ],
   },
   {
-    title: "教堂 / 證婚儀式 + 酒店晚宴",
+    title: "證婚儀式",
     points: [
-      "證婚儀式時間較為嚴謹，需與主禮人 / 神父 / 證婚人預先對稿",
-      "晚宴部分可加入更多互動環節，例如遊戲、抽獎、片段播放",
+      "形式包括教堂證婚、律師 / 主禮人到會證婚，或已於婚姻登記處預先註冊",
+      "若已預先註冊，婚禮當日的證婚環節可純屬儀式性，毋須再具法律效力",
     ],
   },
   {
-    title: "戶外證婚",
+    title: "午宴或晚宴",
     points: [
-      "天氣為最大變數，建議備妥後備方案（室內場地 / 帳篷）",
-      "音響設備須提早測試，戶外收音及回音處理對司儀表現影響甚大",
+      "現時中式及西式婚宴均可於酒樓或酒店舉行，場地與菜式風格已無固定搭配",
+      "午宴、晚宴主要分別在於流程長短及節奏，敬酒、致辭等環節仍建議預留時間",
     ],
   },
   {
-    title: "小型 / 午宴形式",
+    title: "外影",
     points: [
-      "節奏可較為輕鬆，適合著重親友互動多於表演環節的新人",
-      "流程可以精簡，惟敬酒與致辭環節仍建議預留時間",
+      "若有外景拍攝，通常安排於出入門完成後、宴會開始之前的空檔進行",
+      "所需時間須視乎場地距離、交通調動及天氣狀況，建議與攝影師預先估算",
     ],
   },
 ];
@@ -75,19 +75,15 @@ const formats = [
 const glossary = [
   {
     term: "迎親 / 出入門儀式",
-    desc: "新郎前往新娘家中迎接新娘的傳統環節，包括開門利是、遊戲關卡、愛的宣言，再向女家父母奉茶、正式出閣。",
+    desc: "新郎前往新娘家中迎接新娘的傳統環節，包括開門利是、遊戲關卡、愛的宣言，再向女家父母奉茶、正式出門。",
   },
   {
     term: "出門吉時",
-    desc: "新人完成女家奉茶、正式出閣離開女家的時刻。若有擇日師擇定吉時，即依所訂時辰進行；未擇日者，亦可自行選定合宜的時間。",
+    desc: "新人完成女家奉茶、正式離開女家的時刻。若有擇日師擇定吉時，即依所訂時辰進行；未擇日者，亦可自行選定合宜的時間。",
   },
   {
     term: "奉茶",
     desc: "新人向父母、長輩敬茶，表達謝意，通常伴隨長輩回贈利是或金飾。",
-  },
-  {
-    term: "出閣",
-    desc: "新娘正式離開自己家中、由待字閨中過渡為新婦的傳統說法，即「出門」那一刻。",
   },
   {
     term: "證婚儀式",
@@ -99,11 +95,11 @@ const glossary = [
   },
   {
     term: "Dummy Cake",
-    desc: "切餅環節所用的「模擬蛋糕」（通常僅底層為真實蛋糕），供新人切餅拍照留念，毋須切開整個蛋糕。",
+    desc: "晚宴切餅環節所用的整個蛋糕其實都是「模型」，一般只得一層，並非真正可食用的蛋糕，純粹用作切餅拍照，效果美觀好看。",
   },
   {
-    term: "交杯",
-    desc: "新人手臂交疊、一同飲下杯中酒的儀式，象徵同心一體。",
+    term: "合巹交杯",
+    desc: "新人手臂交疊、一同飲下杯中酒的儀式，象徵同心一體，即俗稱的「交杯」。",
   },
   {
     term: "早拍晚播",
@@ -133,7 +129,7 @@ const faqs = [
     a: "統籌主要負責前期籌備、供應商協調及流程設計；司儀則專注於現場主持、串場及氣氛帶動，兩者相輔相成，不少情況下會共同對稿，以確保流程一致。",
   },
   {
-    q: "Rundown 應於何時定稿？",
+    q: "囍程表應於何時定稿？",
     a: "建議於婚禮前 1–2 星期定稿，並確保司儀、場地、攝影 / 攝錄各方手上均為最新版本，以免臨場資訊不一致。",
   },
 ];
@@ -176,9 +172,9 @@ export default function PrepPage() {
       <section id="glossary" className="mt-16 scroll-mt-24">
         <h2 className="font-serif-display text-2xl text-ink">婚禮術語小百科</h2>
         <p className="mt-2 text-sm text-muted">
-          初次籌備婚禮？以下為 Rundown 中常見術語的淺白解釋，讀畢再返回
+          初次籌備婚禮？以下為囍程表中常見術語的淺白解釋，讀畢再返回
           <Link href="/rundown" className="text-accent-dark underline underline-offset-2">
-            Rundown 生成器
+            囍程表
           </Link>
           ，將更容易上手。
         </p>
@@ -192,11 +188,15 @@ export default function PrepPage() {
         </div>
       </section>
 
-      {/* Formats */}
+      {/* Flow parts */}
       <section className="mt-16">
-        <h2 className="font-serif-display text-2xl text-ink">常見流程形式</h2>
+        <h2 className="font-serif-display text-2xl text-ink">流程的四大構成部分</h2>
+        <p className="mt-2 text-sm text-muted">
+          婚禮流程主要由以下四個部分組成，各自獨立、可自由組合，
+          並非只有固定搭配（例如中式必於酒樓、西式必於酒店）。
+        </p>
         <div className="mt-6 grid gap-6 sm:grid-cols-2">
-          {formats.map((f) => (
+          {flowParts.map((f) => (
             <div key={f.title} className="rounded-2xl border border-line bg-card p-6">
               <h3 className="font-serif-display text-lg text-ink">{f.title}</h3>
               <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
@@ -227,13 +227,13 @@ export default function PrepPage() {
           準備好編排流程了嗎？
         </h2>
         <p className="mt-2 text-muted">
-          使用 Rundown 生成器，數分鐘即可擬出時間表，作為討論起點。
+          使用囍程表，數分鐘即可擬出時間表，作為討論起點。
         </p>
         <Link
           href="/rundown"
           className="mt-5 inline-block rounded-full bg-accent px-6 py-3 text-white transition hover:bg-accent-dark"
         >
-          開始製作 Rundown
+          開始製作囍程表
         </Link>
       </section>
     </div>

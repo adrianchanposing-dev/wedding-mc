@@ -31,7 +31,7 @@ export default function Home() {
               href="/rundown"
               className="rounded-full border border-accent px-6 py-3 text-accent-dark transition hover:bg-accent/10"
             >
-              試用 Rundown 生成器
+              試用囍程表
             </Link>
           </div>
         </div>
@@ -154,10 +154,10 @@ export default function Home() {
               Tool
             </p>
             <h2 className="mt-3 font-serif-display text-3xl text-ink">
-              Rundown 生成器
+              囍程表
             </h2>
             <p className="mt-4 text-muted">
-              揀選流程範本（中式 / 西式 / 教堂 + 晚宴等），
+              揀選是否設有出入門、證婚儀式，以及午宴或晚宴，
               輸入開始時間，即自動計算每個環節的時間，
               並可自由增減、調整順序，最後匯出或列印。
             </p>
@@ -165,7 +165,7 @@ export default function Home() {
               href="/rundown"
               className="mt-6 inline-block rounded-full border border-accent px-6 py-3 text-accent-dark transition hover:bg-accent/10"
             >
-              開始製作 Rundown
+              開始製作囍程表
             </Link>
           </div>
         </div>

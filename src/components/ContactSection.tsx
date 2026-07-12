@@ -42,7 +42,7 @@ export default function ContactSection() {
             href="/rundown"
             className="mt-2 inline-block underline underline-offset-4 hover:text-gold"
           >
-            試用 Rundown 生成器 →
+            試用囍程表 →
           </Link>
         </div>
       </div>

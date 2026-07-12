@@ -19,7 +19,7 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "MC Adrian Chan | 香港婚禮司儀",
   description:
-    "MC Adrian Chan — 香港婚禮及宴會司儀。內斂但專業，低調但穩陣：你享受每一刻，我負責每一步。提供婚禮流程（Rundown）製作工具同籌備資訊。",
+    "MC Adrian Chan — 香港婚禮及宴會司儀。內斂而專業，低調而穩重：您安心享受每一刻，我用心成就每一步。提供婚禮流程表（囍程表）製作工具及籌備資訊。",
 };
 
 export default function RootLayout({
