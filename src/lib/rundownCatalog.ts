@@ -1,65 +1,72 @@
+export type ItemKind = "fixed" | "optional";
+
 export type CatalogItem = {
   id: string;
   label: string;
+  kind: ItemKind;
   durationMin: number;
   defaultChecked: boolean;
   desc?: string;
 };
 
 export type BanquetType = "lunch" | "dinner";
+export type CeremonyTimingMode = "standalone" | "embedded";
 
-function item(
+function fixedItem(id: string, label: string, durationMin: number, desc?: string): CatalogItem {
+  return { id, label, kind: "fixed", durationMin, defaultChecked: true, desc };
+}
+
+function optionalItem(
   id: string,
   label: string,
   durationMin: number,
   desc?: string,
   defaultChecked = true
 ): CatalogItem {
-  return { id, label, durationMin, defaultChecked, desc };
+  return { id, label, kind: "optional", durationMin, defaultChecked, desc };
 }
 
-// 迎親（以出門吉時做錨點——即新人完成女家奉茶、正式離開女家嘅時刻）
-// 骨幹時間點（假設出入門喺同一間酒店進行）：
-// 化妝師到場 → （150分鐘）→ 攝影師到場，拍攝新娘及姊妹團花絮 → （60分鐘）→ 兄弟團到場
-// → （30分鐘）→ 接新娘環節（開門利是／玩遊戲／愛的宣言／女家奉茶，共45分鐘）→ 出門（吉時）
+// ---------------------------------------------------------------------------
+// 模組一：出入門（大閘開關；全部為固定流程，沒有可選項目）
+// 錨點：出門（吉時）——新人完成女家奉茶、正式離開女家的時刻
+// ---------------------------------------------------------------------------
 export const fetchingBefore: CatalogItem[] = [
-  item(
-    "f-makeup",
+  fixedItem(
+    "e-makeup",
     "化妝師到場，開始為新娘化妝",
     150,
-    "化妝師抵達新娘準備房間，開始為新娘化妝、整理髮型；一般需時 2.5 小時。"
+    "化妝師抵達新娘準備房間，開始為新娘化妝、整理髮型，一般需時約 2.5 小時。"
   ),
-  item(
-    "f-photographer",
+  fixedItem(
+    "e-photographer",
     "攝影師到場，拍攝新娘及姊妹團花絮",
     60,
-    "攝影師 / 攝錄師到場，拍攝新娘化妝後段、姊妹團合照等準備花絮。"
+    "攝影師或攝錄師到場，拍攝新娘化妝後段、姊妹團合照等準備花絮。"
   ),
-  item(
-    "f-bros-arrive",
+  fixedItem(
+    "e-bros-arrive",
     "兄弟團到場",
     30,
-    "新郎偕兄弟團到達，準備接下來的接新娘環節（開門利是、遊戲關卡等）。"
+    "新郎偕兄弟團到達，準備接下來的接新娘環節。"
   ),
-  item(
-    "f-welcome-bride",
-    "接新娘環節（開門利是 / 玩遊戲 / 愛的宣言 / 女家奉茶）",
+  fixedItem(
+    "e-welcome-bride",
+    "接新娘環節（開門利是、遊戲、女家奉茶）",
     45,
-    "新郎按門鈴、派發開門利是、完成姊妹團設下的遊戲關卡，再向新娘宣讀愛的宣言，最後新人向女家父母及長輩奉茶。"
+    "新郎派發開門利是、完成姊妹團設下的遊戲關卡，新人向女家父母及長輩奉茶。"
   ),
 ];
 
-// 出門之後（同一間酒店：冇交通時間，出門行大運 → 入門）
 export const fetchingAfter: CatalogItem[] = [
-  item(
-    "f-parade",
-    "出門行大運（含拍攝花絮 / 撒米，如有 / 影花車花絮，如有）",
+  fixedItem(
+    "e-parade",
+    "出門行大運（如有撒米、花車拍攝等環節）",
     20,
-    "新人攜手「行大運」（繞圈祈福），期間可順道拍攝花絮，部分新人亦會加入撒米、花車拍攝等環節。"
+    "新人攜手「行大運」，期間可順道拍攝花絮，部分新人亦會加入撒米、花車拍攝等環節。"
   ),
-  item(
-    "f-enter-groom-home",
-    "入門（男家奉茶 + 影相）",
+  fixedItem(
+    "e-enter-groom-home",
+    "入門（男家奉茶及拍照）",
     45,
     "新人步入男家門，向男家父母及長輩奉茶，並拍攝相關合照。"
   ),
@@ -68,105 +75,121 @@ export const fetchingAfter: CatalogItem[] = [
 export const fetchingAnchorLabel = "出門（吉時）";
 export const fetchingAnchorDurationMin = 0;
 export const fetchingAnchorDesc =
-  "新人正式完成女家奉茶、離開女家的時刻——若有擇日師擇定吉時，即依所訂時辰進行；若未擇吉時，則由新人自行決定出門的時刻。";
+  "新人完成女家奉茶、正式離開女家的時刻——如有擇定吉時，依所訂時辰進行；如未擇吉時，則由新人自行決定。";
 
-// 證婚儀式（以「開始證婚儀式」做錨點）
-// 骨幹時間點：新人 / MC 到達（證婚前1小時）→（45分鐘）→ 律師到達（證婚前15分鐘）
-// →（15分鐘）→ 開始證婚儀式（宣誓及簽紙，20分鐘）→ 完成證婚，大合照（30分鐘）
-export const ceremonyBefore: CatalogItem[] = [
-  item(
-    "c-arrival",
-    "新人、MC 到達證婚場地（主人家同時到達，MC 安排進場相關人士綵排）",
-    45,
-    "新人、司儀偕雙方主人家到達證婚場地，司儀會與負責進場的人士（花女、伴郎伴娘、家長等）綵排流程。"
-  ),
-  item(
-    "c-lawyer",
-    "律師到達，姊妹 / 兄弟將證婚物資交予律師",
-    15,
-    "負責證婚的律師到達，姊妹團 / 兄弟團將身份證、戒指、證書套等物資交予律師核對。"
-  ),
+// ---------------------------------------------------------------------------
+// 模組二：證婚儀式（大閘開關，預設為「設有」）
+// timing_mode：standalone（獨立舉行，於宴會之前）／embedded（入席證婚，插入宴會之中）
+// 錨點：證婚儀式（宣讀誓詞、交換戒指、簽署證書）
+// ---------------------------------------------------------------------------
+export const ceremonyArrival = fixedItem(
+  "c-arrival",
+  "新人、司儀到達證婚場地，統籌迎賓人員綵排",
+  45,
+  "新人偕司儀到達證婚場地，司儀與負責進場的人員（花女、伴郎伴娘、家長等）綵排流程。獨立舉行證婚時方需此項；入席證婚則毋須另行到場。"
+);
+
+export const ceremonyLawyer = fixedItem(
+  "c-lawyer",
+  "律師到場，接收證婚所需文件",
+  15,
+  "負責證婚的律師到場，姊妹團或兄弟團將身份證、戒指、證書套等文件交予律師核對。"
+);
+
+// 進場形式：三者之間不設固定次序，由司儀臨場安排
+export const ceremonyEntryOptions: CatalogItem[] = [
+  optionalItem("c-opt-father-walk", "外父帶新娘進場", 3, undefined, false),
+  optionalItem("c-opt-flower-kids", "花仔花女進場", 3, undefined, false),
+  optionalItem("c-opt-siblings-entry", "兄弟姊妹團進場", 3, undefined, false),
 ];
 
-export const ceremonyAfter: CatalogItem[] = [
-  item(
-    "c-photo",
-    "完成證婚，（切餅及拋花球，如有）開始大合照",
-    30,
-    "完成證婚儀式後，如有安排可順道切餅、拋花球，再與親友合照留念。"
-  ),
-];
-
-export const ceremonyAnchorLabel = "開始證婚儀式（宣讀誓詞及簽紙儀式）";
+export const ceremonyAnchorLabel = "證婚儀式（宣讀誓詞、交換戒指、簽署證書）";
 export const ceremonyAnchorDurationMin = 20;
 export const ceremonyAnchorDesc =
-  "律師或主禮人主持宣讀誓詞、交換戒指、簽署結婚證書，正式完成法律上的證婚程序。";
+  "由律師或主禮人主持，宣讀誓詞、交換戒指、簽署結婚證書，正式完成法律上的證婚程序。";
 
-// 午宴（以「開席」做錨點——即午宴正式開始嘅時刻；同晚宴唔同嘅係冇獨立迎賓時段）
-// 骨幹時間點：新娘換主婚紗及補妝（30分鐘）
-// → 開席／午宴正式開始（司儀致辭／成長片段／新人進場／切餅／合巹交杯／致辭／祝酒／上菜，30分鐘）
-// →（30分鐘）→ 新娘換敬酒裝 →（60分鐘）→ 奉茶／敬酒／大合照 →（15分鐘）→ 送客
-export const lunchBefore: CatalogItem[] = [
-  item(
-    "l-bride-change",
-    "新娘換主婚紗及補妝",
-    30,
-    "新娘更換主婚紗（或首套敬酒裝），並補妝，準備開席入場。"
-  ),
-];
+export const ceremonyOptCake = optionalItem(
+  "c-opt-cake",
+  "切結婚蛋糕",
+  10,
+  "證婚儀式後隨即切結婚蛋糕，留下紀念畫面。"
+);
 
-export const lunchAfter: CatalogItem[] = [
-  item("l-change", "新娘換敬酒裝", 30, "新娘更換敬酒裝，以便其後逐桌敬酒。"),
-  item(
-    "l-toast",
-    "奉茶 / 敬酒 / 大合照",
-    60,
-    "新人逐桌向親友奉茶、敬酒，並與各桌親友拍攝合照，時間將按桌數調整。"
-  ),
-  item("l-farewell", "送客 / 散席", 15, "午宴結束，新人於場外送別賓客。"),
-];
+export const ceremonyPhoto = fixedItem(
+  "c-photo",
+  "完成證婚，開始大合照",
+  20,
+  "完成證婚儀式後，與親友合照留念。"
+);
 
-export const lunchAnchorLabel =
-  "午宴正式開始（司儀致辭 / 成長片段，如有 / 新人進場 / 切餅 Dummy Cake / 合巹交杯 / 致辭 / 祝酒 / 上菜）";
-export const lunchAnchorDurationMin = 30;
-export const lunchAnchorDesc =
-  "司儀開場致辭、播放成長片段（如有）、新人正式進場，接著切餅（Dummy Cake）、合巹交杯，雙方致辭、祝酒，然後開始上菜。";
+export const ceremonyOptBouquet = optionalItem("c-opt-bouquet", "拋花球", 10, undefined, false);
+export const ceremonyOptMarch = optionalItem(
+  "c-opt-march",
+  "退場 / 重新進場（March out / re-march in）",
+  10,
+  undefined,
+  false
+);
 
-// 晚宴（以「開席」做錨點——即晚宴正式開始嘅時刻）
-// 骨幹時間點：迎賓時段（含影相／奉茶／迎賓）→（30分鐘）→ 新娘換主婚紗及補妝
-// → 開席／晚宴正式開始（司儀致辭／成長片段／新人進場／切餅／合巹交杯／致辭／祝酒／上菜，30分鐘）
-// →（30分鐘）→ 新娘換紅裙 →（60分鐘）→ 早拍晚播／奉茶／敬酒／大合照 →（15分鐘）→ 送客
+// ---------------------------------------------------------------------------
+// 模組三：晚宴 / 午宴（恆常存在，沒有大閘開關）
+// 錨點：正式開席
+// ---------------------------------------------------------------------------
 export const dinnerBefore: CatalogItem[] = [
-  item(
+  fixedItem(
     "d-reception",
-    "迎賓時段（含影相 / 奉茶 / 迎賓）",
+    "迎賓時段（含影相、奉茶）",
     60,
-    "賓客陸續抵達會場簽到，新人於場外迎賓、拍照，亦可安排補敬茶予未出席早上茶敘的親友。"
+    "賓客陸續抵達會場簽到，新人於場外迎賓、拍照，亦可安排補奉茶予未出席早上茶敘的親友。"
   ),
-  item(
-    "d-bride-change",
-    "新娘換主婚紗及補妝",
-    30,
-    "新娘更換主婚紗，並補妝，準備開席入場。"
-  ),
+  fixedItem("d-bride-change", "新娘更換主婚紗及補妝", 30, "新娘更換主婚紗並補妝，準備開席入場。"),
+];
+
+export const lunchBefore: CatalogItem[] = [
+  fixedItem("l-bride-change", "新娘更換主婚紗及補妝", 30, "新娘更換主婚紗（或首套敬酒服）並補妝，準備開席入場。"),
+];
+
+export const banquetAnchorLabelFor: Record<BanquetType, string> = {
+  dinner: "晚宴正式開始（司儀致辭、新人進場、切餅、交杯、祝酒、上菜）",
+  lunch: "午宴正式開始（司儀致辭、新人進場、切餅、交杯、祝酒、上菜）",
+};
+export const banquetAnchorDurationMin = 30;
+export const banquetAnchorDesc =
+  "司儀開場致辭、新人正式進場，接著依序進行切結婚蛋糕、合巹交杯、雙方致辭、祝酒，然後開始上菜。";
+
+// 開席後之可選環節（全部依附於「正式開席」錨點）
+export const banquetOptionalAfterAnchor: CatalogItem[] = [
+  optionalItem("b-opt-video", "播放成長片段", 5, "新人進場前播放成長影片或求婚片段。"),
+  optionalItem("b-opt-cake", "切餅儀式（Dummy Cake）", 10, "新人於台上切結婚蛋糕。"),
+  optionalItem("b-opt-wine", "合巹交杯儀式", 10, "新人於台上完成交杯儀式。"),
+  optionalItem("b-opt-kiss", "吻賀", 5, "新人於台上接受親友吻賀祝福。"),
+  optionalItem("b-opt-gift", "致送感恩花 / 禮物予父母", 10, "新人向雙方父母致送感恩花或禮物。", false),
+  optionalItem("b-opt-speech", "致辭", 15, "新人、雙方家長或親友致辭。"),
+  optionalItem("b-opt-toast", "祝酒環節", 10, "新人與親友舉杯祝酒。"),
+  optionalItem("b-opt-preshoot", "播放早拍晚播花絮", 10, "播放婚禮當日拍攝之「早拍晚播」花絮。", false),
 ];
 
 export const dinnerAfter: CatalogItem[] = [
-  item("d-red-dress", "新娘換紅裙", 30, "新娘更換傳統敬酒紅裙，以便其後逐桌敬酒。"),
-  item(
-    "d-throwback",
-    "早拍晚播 / 奉茶 / 敬酒 / 大合照",
+  fixedItem("d-red-dress", "新娘更換敬酒裝", 30, "新娘更換傳統敬酒裝，以便其後逐桌敬酒。"),
+  fixedItem(
+    "d-toast",
+    "逐桌奉茶、敬酒及大合照",
     60,
-    "播放婚禮當日拍攝的「早拍晚播」花絮，新人逐桌奉茶、敬酒，並與各桌親友拍攝合照。"
+    "新人逐桌向親友奉茶、敬酒，並與各桌親友拍攝合照，時間可按桌數調整。"
   ),
-  item("d-farewell", "送客", 15, "晚宴結束，新人於場外送別賓客。"),
+  fixedItem("d-farewell", "送客", 15, "晚宴結束，新人於場外送別賓客。"),
 ];
 
-export const dinnerAnchorLabel =
-  "晚宴正式開始（司儀致辭 / 成長片段，如有 / 新人進場 / 切餅 Dummy Cake / 合巹交杯 / 致辭 / 祝酒 / 上菜）";
-export const dinnerAnchorDurationMin = 30;
-export const dinnerAnchorDesc =
-  "司儀開場致辭、播放成長片段（如有）、新人正式進場，接著切餅（Dummy Cake）、合巹交杯，雙方致辭、祝酒，然後開始上菜。";
+export const lunchAfter: CatalogItem[] = [
+  fixedItem("l-change", "新娘更換敬酒裝", 30, "新娘更換敬酒裝，以便其後逐桌敬酒。"),
+  fixedItem(
+    "l-toast",
+    "逐桌奉茶、敬酒及大合照",
+    60,
+    "新人逐桌向親友奉茶、敬酒，並與各桌親友拍攝合照，時間可按桌數調整。"
+  ),
+  fixedItem("l-farewell", "送客", 15, "午宴結束，新人於場外送別賓客。"),
+];
 
 export function banquetTitleFor(type: BanquetType): string {
   return type === "lunch" ? "午宴" : "晚宴";
@@ -186,5 +209,5 @@ export function makeId(): string {
 }
 
 export function withRuntimeIds(items: CatalogItem[]): (CatalogItem & { checked: boolean })[] {
-  return items.map((it) => ({ ...it, id: makeId(), checked: it.defaultChecked }));
+  return items.map((it) => ({ ...it, id: makeId(), checked: it.kind === "fixed" ? true : it.defaultChecked }));
 }

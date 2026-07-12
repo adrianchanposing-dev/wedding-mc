@@ -17,9 +17,8 @@ export default function RundownPage() {
         囍程表
       </h1>
       <p className="mt-4 max-w-2xl text-muted">
-        回答數條基本問題（午宴或晚宴、有否迎親、有否證婚儀式），
-        再於各環節清單中勾選並調整時長，時間表將即時計算。
-        完成後可列印或下載，作為討論之用。尚未熟悉相關術語？不妨先閱讀
+        回答數條基本問題，即可得出一份初步流程表，作為與我詳談前的參考。
+        術語不明白？可先閱讀
         <Link href="/prep#glossary" className="text-accent-dark underline underline-offset-2">
           婚禮術語小百科
         </Link>
