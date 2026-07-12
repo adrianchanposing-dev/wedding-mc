@@ -72,10 +72,10 @@ export const fetchingAfter: CatalogItem[] = [
   ),
 ];
 
-export const fetchingAnchorLabel = "出門（吉時）";
+export const fetchingAnchorLabel = "出門";
 export const fetchingAnchorDurationMin = 0;
 export const fetchingAnchorDesc =
-  "新人完成女家奉茶、正式離開女家的時刻——如有擇定吉時，依所訂時辰進行；如未擇吉時，則由新人自行決定。";
+  "新人完成女家奉茶、正式離開女家的時刻——如有擇定吉時，依所訂時辰進行；如未擇日，則由新人自行決定。";
 
 // ---------------------------------------------------------------------------
 // 模組二：證婚儀式（大閘開關，預設為「設有」）
@@ -150,30 +150,38 @@ export const lunchBefore: CatalogItem[] = [
 ];
 
 export const banquetAnchorLabelFor: Record<BanquetType, string> = {
-  dinner: "晚宴正式開始（司儀致辭、新人進場、切餅、交杯、祝酒、上菜）",
-  lunch: "午宴正式開始（司儀致辭、新人進場、切餅、交杯、祝酒、上菜）",
+  dinner: "晚宴正式開始",
+  lunch: "午宴正式開始",
 };
 export const banquetAnchorDurationMin = 30;
 export const banquetAnchorDesc =
-  "司儀開場致辭、新人正式進場，接著依序進行切結婚蛋糕、合巹交杯、雙方致辭、祝酒，然後開始上菜。";
+  "司儀開場致辭、新人正式進場，接著依序進行以下環節，然後開始上菜——以下均包含在這半小時之內，不另佔時間。";
 
-// 開席後之可選環節（全部依附於「正式開席」錨點）
-export const banquetOptionalAfterAnchor: CatalogItem[] = [
-  optionalItem("b-opt-video", "播放成長片段", 5, "新人進場前播放成長影片或求婚片段。"),
-  optionalItem("b-opt-cake", "切餅儀式（Dummy Cake）", 10, "新人於台上切結婚蛋糕。"),
-  optionalItem("b-opt-wine", "合巹交杯儀式", 10, "新人於台上完成交杯儀式。"),
-  optionalItem("b-opt-kiss", "吻賀", 5, "新人於台上接受親友吻賀祝福。"),
-  optionalItem("b-opt-gift", "致送感恩花 / 禮物予父母", 10, "新人向雙方父母致送感恩花或禮物。", false),
-  optionalItem("b-opt-speech", "致辭", 15, "新人、雙方家長或親友致辭。"),
-  optionalItem("b-opt-toast", "祝酒環節", 10, "新人與親友舉杯祝酒。"),
-  optionalItem("b-opt-preshoot", "播放早拍晚播花絮", 10, "播放婚禮當日拍攝之「早拍晚播」花絮。", false),
+// 「正式開始」這半小時之內包含的環節（不另佔時間，只作勾選及顯示之用）
+export const banquetAnchorIncludes: CatalogItem[] = [
+  optionalItem("b-opt-video", "播放成長片段", 0, "新人進場前播放成長影片或求婚片段。"),
+  optionalItem("b-opt-cake", "切餅儀式", 0, "新人於台上切結婚蛋糕。"),
+  optionalItem("b-opt-wine", "合巹交杯儀式", 0, "新人於台上完成交杯儀式。"),
+  optionalItem("b-opt-kiss", "吻賀", 0, "新人於台上接受親友吻賀祝福。"),
+  optionalItem("b-opt-gift", "致送感恩花 / 禮物予父母", 0, "新人向雙方父母致送感恩花或禮物。", false),
+  optionalItem("b-opt-speech", "致辭", 0, "新人、雙方家長或親友致辭。"),
+  optionalItem("b-opt-toast", "祝酒環節", 0, "新人與親友舉杯祝酒。"),
 ];
+export const banquetAnchorServe = fixedItem("b-serve", "上菜", 0, "作為「正式開始」的最後一環節，隨即開始上菜。");
+
+export const banquetPreshoot = optionalItem(
+  "b-opt-preshoot",
+  "播放早拍晚播花絮",
+  10,
+  "播放婚禮當日拍攝之「早拍晚播」花絮，於逐桌敬酒之前進行。",
+  true
+);
 
 export const dinnerAfter: CatalogItem[] = [
   fixedItem("d-red-dress", "新娘更換敬酒裝", 30, "新娘更換傳統敬酒裝，以便其後逐桌敬酒。"),
   fixedItem(
     "d-toast",
-    "逐桌奉茶、敬酒及大合照",
+    "補奉茶、逐桌敬酒及大合照",
     60,
     "新人逐桌向親友奉茶、敬酒，並與各桌親友拍攝合照，時間可按桌數調整。"
   ),
@@ -184,7 +192,7 @@ export const lunchAfter: CatalogItem[] = [
   fixedItem("l-change", "新娘更換敬酒裝", 30, "新娘更換敬酒裝，以便其後逐桌敬酒。"),
   fixedItem(
     "l-toast",
-    "逐桌奉茶、敬酒及大合照",
+    "補奉茶、逐桌敬酒及大合照",
     60,
     "新人逐桌向親友奉茶、敬酒，並與各桌親友拍攝合照，時間可按桌數調整。"
   ),
