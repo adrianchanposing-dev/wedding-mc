@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "婚禮籌備資訊 | MC Adrian Chan",
-  description: "香港婚禮籌備資訊：司儀揀選要點、常見流程形式、時間表安排貼士。",
+  title: "婚禮籌備資訊與流程安排 | 香港婚禮司儀",
+  description:
+    "香港婚禮籌備資訊：司儀揀選要點、出入門與證婚儀式流程、婚禮時間表安排貼士，助您規劃婚禮流程每個環節。",
 };
 
 const timeline = [
@@ -26,7 +27,7 @@ const timeline = [
   {
     when: "婚禮前 1 個月",
     items: [
-      "與司儀敲定詳細囍程表（各環節時間、負責人、串場重點）",
+      "與司儀敲定詳細婚禮流程表（各環節時間、負責人、串場重點）",
       "與攝影 / 攝錄、場地確認流程時間表一致",
       "備妥背景音樂、簡報 / 相片，以及所需道具",
     ],
@@ -36,7 +37,7 @@ const timeline = [
     items: [
       "與司儀、場地作最後綵排或視像對稿",
       "確認最終人數、座位表、特別來賓（需要點名或敬酒的親友）",
-      "備妥囍程表印本，分發予核心團隊（新人、兄弟姊妹、家長、場地聯絡人）",
+      "備妥婚禮流程表印本，分發予核心團隊（新人、兄弟姊妹、家長、場地聯絡人）",
     ],
   },
 ];
@@ -129,7 +130,7 @@ const faqs = [
     a: "統籌主要負責前期籌備、供應商協調及流程設計；司儀則專注於現場主持、串場及氣氛帶動，兩者相輔相成，不少情況下會共同對稿，以確保流程一致。",
   },
   {
-    q: "囍程表應於何時定稿？",
+    q: "婚禮流程表應於何時定稿？",
     a: "建議於婚禮前 1–2 星期定稿，並確保司儀、場地、攝影 / 攝錄各方手上均為最新版本，以免臨場資訊不一致。",
   },
 ];
@@ -172,9 +173,9 @@ export default function PrepPage() {
       <section id="glossary" className="mt-16 scroll-mt-24">
         <h2 className="font-serif-display text-2xl text-ink">婚禮術語小百科</h2>
         <p className="mt-2 text-sm text-muted">
-          初次籌備婚禮？以下為囍程表中常見術語的淺白解釋，讀畢再返回
+          初次籌備婚禮？以下為婚禮流程表中常見術語的淺白解釋，讀畢再返回
           <Link href="/rundown" className="text-accent-dark underline underline-offset-2">
-            囍程表
+            婚禮流程表製作
           </Link>
           ，將更容易上手。
         </p>
@@ -227,13 +228,13 @@ export default function PrepPage() {
           準備好編排流程了嗎？
         </h2>
         <p className="mt-2 text-muted">
-          使用囍程表，數分鐘即可擬出時間表，作為討論起點。
+          使用婚禮流程表製作，數分鐘即可擬出時間表，作為討論起點。
         </p>
         <Link
           href="/rundown"
           className="mt-5 inline-block rounded-full bg-accent px-6 py-3 text-white transition hover:bg-accent-dark"
         >
-          開始製作囍程表
+          開始使用婚禮流程表製作
         </Link>
       </section>
     </div>

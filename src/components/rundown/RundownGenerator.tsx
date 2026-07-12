@@ -404,7 +404,7 @@ export default function RundownGenerator() {
   }
 
   function buildLines(): string[] {
-    const lines: string[] = [`${eventTitle} — 囍程表`];
+    const lines: string[] = [`${eventTitle} — 婚禮流程表`];
     if (fetchingMode === "yes") {
       lines.push("", "【出入門】");
       lines.push(...toLines(entrySchedule.beforeScheduled));

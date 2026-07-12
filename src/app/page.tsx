@@ -31,7 +31,7 @@ export default function Home() {
               href="/rundown"
               className="rounded-full border border-accent px-6 py-3 text-accent-dark transition hover:bg-accent/10"
             >
-              試用囍程表
+              試用婚禮流程表製作
             </Link>
           </div>
         </div>
@@ -154,18 +154,18 @@ export default function Home() {
               Tool
             </p>
             <h2 className="mt-3 font-serif-display text-3xl text-ink">
-              囍程表
+              婚禮流程表製作
             </h2>
             <p className="mt-4 text-muted">
               揀選是否設有出入門、證婚儀式，以及午宴或晚宴，
-              輸入開始時間，即自動計算每個環節的時間，
+              輸入開始時間，即自動計算婚禮時間表每個環節的時間，
               並可自由增減、調整順序，最後匯出或列印。
             </p>
             <Link
               href="/rundown"
               className="mt-6 inline-block rounded-full border border-accent px-6 py-3 text-accent-dark transition hover:bg-accent/10"
             >
-              開始製作囍程表
+              開始使用婚禮流程表製作
             </Link>
           </div>
         </div>

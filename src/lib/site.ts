@@ -1,4 +1,6 @@
+// 綁定自訂網域後，記得將呢個網址改做正式網域（例如 "https://mcadrianchan.hk"）。
 export const site = {
+  url: "https://wedding-mc-smoky.vercel.app",
   brand: "MC Adrian Chan",
   brandZh: "婚禮 / 宴會司儀",
   tagline: "內斂而專業，低調而穩重",

@@ -5,7 +5,7 @@ const navItems = [
   { href: "/#about", label: "關於我" },
   { href: "/#portfolio", label: "過往案例" },
   { href: "/prep", label: "籌備資訊" },
-  { href: "/rundown", label: "囍程表" },
+  { href: "/rundown", label: "婚禮流程表製作" },
   { href: "/#contact", label: "聯絡我" },
 ];
 
