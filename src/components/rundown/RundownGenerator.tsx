@@ -585,7 +585,7 @@ export default function RundownGenerator() {
                   <p className="text-xs text-muted">證婚儀式的安排方式</p>
                   <div className="mt-2 flex gap-2">
                     <ModeButton active={ceremonyTiming === "standalone"} onClick={() => setCeremonyTiming("standalone")}>
-                      獨立舉行
+                      席前證婚
                     </ModeButton>
                     <ModeButton active={ceremonyTiming === "embedded"} onClick={() => setCeremonyTiming("embedded")}>
                       入席證婚
@@ -593,18 +593,25 @@ export default function RundownGenerator() {
                   </div>
                 </div>
                 {ceremonyTiming === "standalone" && (
-                  <div className="mt-3">
-                    <label className="text-xs text-muted">開始證婚儀式的時間</label>
-                    <input
-                      type="time"
-                      value={ceremonyStart}
-                      onChange={(e) => setCeremonyStart(e.target.value)}
-                      className="mt-1 w-full max-w-xs rounded-lg border border-line bg-background px-3 py-2 text-sm"
-                    />
-                  </div>
+                  <>
+                    <p className="mt-3 text-xs text-muted">
+                      席前證婚於宴會開始之前、另設時段進行，賓客毋須在場，完成後才正式入座開席。
+                    </p>
+                    <div className="mt-3">
+                      <label className="text-xs text-muted">開始證婚儀式的時間</label>
+                      <input
+                        type="time"
+                        value={ceremonyStart}
+                        onChange={(e) => setCeremonyStart(e.target.value)}
+                        className="mt-1 w-full max-w-xs rounded-lg border border-line bg-background px-3 py-2 text-sm"
+                      />
+                    </div>
+                  </>
                 )}
                 {ceremonyTiming === "embedded" && (
-                  <p className="mt-3 text-xs text-muted">入席證婚將插入宴會正式開席之後進行。</p>
+                  <p className="mt-3 text-xs text-muted">
+                    入席證婚將插入宴會正式開席之後進行，賓客已在座，毋須另外安排時間或場地。
+                  </p>
                 )}
               </>
             )}
