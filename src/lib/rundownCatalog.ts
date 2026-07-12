@@ -102,7 +102,7 @@ export const ceremonyLawyer = fixedItem(
   "c-lawyer",
   "律師到場，接收證婚所需文件",
   15,
-  "負責證婚的律師到場，姊妹團或兄弟團將身份證、戒指、證書套等文件交予律師核對。獨立舉行時提前到場核對文件；入席證婚則於開席前15分鐘到場。"
+  "負責證婚的律師到場，姊妹團或兄弟團將身份證、戒指、證書套等文件交予律師核對。"
 );
 
 export const ceremonyWelcome = fixedItem(
@@ -114,7 +114,7 @@ export const ceremonyWelcome = fixedItem(
 
 // 進場形式：三者之間不設固定次序，由司儀臨場安排
 export const ceremonyEntryOptions: CatalogItem[] = [
-  optionalItem("c-opt-father-walk", "親人帶新娘進場", 3, undefined, false),
+  optionalItem("c-opt-father-walk", "親人帶新娘進場", 3, undefined, true),
   optionalItem("c-opt-flower-kids", "花仔花女進場", 3, undefined, false),
   optionalItem("c-opt-siblings-entry", "兄弟姊妹團進場", 3, undefined, false),
 ];
@@ -122,30 +122,23 @@ export const ceremonyEntryOptions: CatalogItem[] = [
 export const ceremonyAnchorLabel = "證婚儀式";
 export const ceremonyAnchorDurationMin = 20;
 export const ceremonyAnchorDesc =
-  "由律師主持，依序交予主持人、宣讀誓詞、交換戒指、揭頭紗、親吻祝賀、簽紙，正式完成法律上的證婚程序。";
+  "由律師主持，依序宣讀誓詞、交換戒指、揭頭紗、親吻祝賀、簽紙，正式完成法律上的證婚程序。";
 
 // 證婚核心程序嘅內部次序（不設獨立時間，全部包含喺證婚儀式呢個時間點之內）
-export const ceremonyCoreSteps: string[] = [
-  "交予律師 / 主持人",
-  "宣讀誓詞",
-  "交換戒指",
-  "揭頭紗",
-  "親吻祝賀",
-  "簽紙",
-];
+export const ceremonyCoreSteps: string[] = ["宣讀誓詞", "交換戒指", "揭頭紗", "親吻祝賀", "簽紙"];
 
 export const ceremonyOptCake = optionalItem(
   "c-opt-cake",
   "切結婚蛋糕",
   10,
-  "簽紙後隨即切結婚蛋糕，留下紀念畫面。"
+  "簽紙後隨即切真蛋糕，留下紀念畫面。"
 );
 
 export const ceremonyPhoto = fixedItem(
   "c-photo",
   "完成證婚，開始大合照",
   20,
-  "完成證婚儀式後，與親友合照留念。獨立舉行時方有此項；入席證婚則不設獨立大合照。"
+  "完成證婚儀式後，與親友合照留念。"
 );
 
 export const ceremonyOptBouquet = optionalItem("c-opt-bouquet", "拋花球", 10, undefined, false);
@@ -153,7 +146,7 @@ export const ceremonyOptMarch = optionalItem(
   "c-opt-march",
   "退場 / 重新進場（March out / Re-march in）",
   10,
-  "新人先行退場，稍後在音樂聲中重新步入會場，用以加強氣氛、方便補拍進場畫面。",
+  "新人先行退場，再以夫婦的全新身份重新步入會場，用以加強氣氛、方便補拍進場畫面。",
   false
 );
 
@@ -184,22 +177,19 @@ export const banquetAnchorDurationMin = 30;
 // 入席證婚時，「正式開始」需容納完整證婚核心程序，由開始至上菜共45分鐘
 export const banquetAnchorDurationMinEmbedded = 45;
 
-export function banquetAnchorDescFor(durationMin: number): string {
-  const span = durationMin === 30 ? "半小時" : `${durationMin} 分鐘`;
-  return `司儀開場致辭、新人正式進場，接著依序進行以下環節，然後開始上菜——以下均包含在這${span}之內，不另佔時間。`;
-}
+export const banquetAnchorDesc = "司儀開場致辭、新人正式進場，接著依序進行以下環節。";
 
 // 「正式開始」這半小時之內包含的環節（不另佔時間，只作勾選及顯示之用）
 export const banquetAnchorIncludes: CatalogItem[] = [
   optionalItem("b-opt-video", "播放成長片段", 0, "新人進場前播放成長影片或求婚片段。"),
   optionalItem("b-opt-cake", "切餅儀式", 0, "新人於台上切結婚蛋糕。"),
   optionalItem("b-opt-wine", "合巹交杯儀式", 0, "新人於台上完成交杯儀式。"),
-  optionalItem("b-opt-kiss", "吻賀", 0, "新人於台上接受親友吻賀祝福。"),
+  optionalItem("b-opt-kiss", "吻賀", 0, "新人於台上互相親吻，接受親友祝賀。"),
   optionalItem("b-opt-gift", "致送感恩花 / 禮物予父母", 0, "新人向雙方父母致送感恩花或禮物。", false),
   optionalItem("b-opt-speech", "致辭", 0, "新人、雙方家長或親友致辭。"),
   optionalItem("b-opt-toast", "祝酒環節", 0, "新人與親友舉杯祝酒。"),
 ];
-export const banquetAnchorServe = fixedItem("b-serve", "上菜", 0, "作為「正式開始」的最後一環節，隨即開始上菜。");
+export const banquetAnchorServe = fixedItem("b-serve", "上菜", 0);
 
 export const banquetPreshoot = optionalItem(
   "b-opt-preshoot",
@@ -220,7 +210,7 @@ export function banquetPreshootDescFor(type: BanquetType): string {
 }
 
 export const dinnerAfter: CatalogItem[] = [
-  fixedItem("d-red-dress", "新娘更換敬酒裝", 30, "新娘更換傳統敬酒裝，以便其後逐桌敬酒。"),
+  fixedItem("d-red-dress", "新娘更換敬酒裝", 30, "新娘更換敬酒裝，及佩戴金器，準備敬酒環節。"),
   fixedItem(
     "d-toast",
     "補奉茶、逐桌敬酒及大合照",
@@ -231,7 +221,7 @@ export const dinnerAfter: CatalogItem[] = [
 ];
 
 export const lunchAfter: CatalogItem[] = [
-  fixedItem("l-change", "新娘更換敬酒裝", 30, "新娘更換敬酒裝，以便其後逐桌敬酒。"),
+  fixedItem("l-change", "新娘更換敬酒裝", 30, "新娘更換敬酒裝，及佩戴金器，準備敬酒環節。"),
   fixedItem(
     "l-toast",
     "補奉茶、逐桌敬酒及大合照",

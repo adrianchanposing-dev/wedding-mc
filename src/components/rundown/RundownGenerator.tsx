@@ -7,7 +7,7 @@ import {
   CatalogItem,
   CeremonyTimingMode,
   addMinutes,
-  banquetAnchorDescFor,
+  banquetAnchorDesc,
   banquetAnchorDurationMin,
   banquetAnchorDurationMinEmbedded,
   banquetAnchorIncludes,
@@ -291,9 +291,6 @@ export default function RundownGenerator() {
     }
     return [...(videoItem?.checked ? [videoItem.label] : []), ...restBanquetLabels, banquetAnchorServe.label];
   }, [isEmbedded, banquetIncludes.items, entryOptions.items]);
-
-  const effectiveBanquetAnchorDurationMin = isEmbedded ? banquetAnchorDurationMinEmbedded : banquetAnchorDurationMin;
-  const banquetAnchorDesc = banquetAnchorDescFor(effectiveBanquetAnchorDurationMin);
 
   // 宴會時間表：入席證婚時，律師固定於開席前15分鐘到場（獨立於前置環節之外）；
   // 早拍晚播（可選）插入「更換敬酒裝」之後、「逐桌敬酒」之前
@@ -601,7 +598,7 @@ export default function RundownGenerator() {
                   </div>
                 )}
                 {ceremonyTiming === "embedded" && (
-                  <p className="mt-3 text-xs text-muted">入席證婚將插入宴會正式開席之前進行。</p>
+                  <p className="mt-3 text-xs text-muted">入席證婚將插入宴會正式開席之後進行。</p>
                 )}
               </>
             )}
