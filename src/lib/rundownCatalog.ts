@@ -127,10 +127,12 @@ export const ceremonyAnchorDesc =
 // 證婚核心程序嘅內部次序（不設獨立時間，全部包含喺證婚儀式呢個時間點之內）
 export const ceremonyCoreSteps: string[] = ["宣讀誓詞", "交換戒指", "揭頭紗", "親吻祝賀", "簽紙"];
 
+// 以下三項（如有選擇）連同司儀歡迎、進場、證婚核心程序，全部包含在證婚儀式呢
+// 大約20分鐘之內，不另佔時間，只作勾選及顯示之用。
 export const ceremonyOptCake = optionalItem(
   "c-opt-cake",
   "切結婚蛋糕",
-  10,
+  0,
   "簽紙後隨即切真蛋糕，留下紀念畫面。"
 );
 
@@ -141,11 +143,11 @@ export const ceremonyPhoto = fixedItem(
   "完成證婚儀式後，與親友合照留念。"
 );
 
-export const ceremonyOptBouquet = optionalItem("c-opt-bouquet", "拋花球", 10, undefined, false);
+export const ceremonyOptBouquet = optionalItem("c-opt-bouquet", "拋花球", 0, undefined, false);
 export const ceremonyOptMarch = optionalItem(
   "c-opt-march",
   "退場 / 重新進場（March out / Re-march in）",
-  10,
+  0,
   "新人先行退場，再以夫婦的全新身份重新步入會場，用以加強氣氛、方便補拍進場畫面。",
   false
 );

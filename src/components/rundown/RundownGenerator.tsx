@@ -21,6 +21,7 @@ import {
   ceremonyAnchorDurationMin,
   ceremonyAnchorLabel,
   ceremonyArrival,
+  ceremonyCoreSteps,
   ceremonyEntryOptions,
   ceremonyLawyer,
   ceremonyOptBouquet,
@@ -247,21 +248,23 @@ export default function RundownGenerator() {
     return { beforeScheduled, anchorStart: fetchAnchorTime, anchorEnd, afterScheduled };
   }, [entryBeforeFixed, entryAfterFixed, fetchAnchorTime]);
 
-  // 獨立舉行證婚——「新人/司儀到達」→「律師到場」→「司儀歡迎並引領進場」→「進場形式（可選）」
-  const ceremonyBeforeItems = useMemo(() => {
-    const items: RuntimeItem[] = [toRuntime(ceremonyArrival), toRuntime(ceremonyLawyer), toRuntime(ceremonyWelcome)];
-    items.push(...entryOptions.items.filter((i) => i.checked));
-    return items;
-  }, [entryOptions.items]);
+  // 獨立舉行證婚——「新人/司儀到達」→「律師到場」，之後「司儀歡迎並引領進場」開始整個
+  // 約20分鐘嘅證婚儀式時間點（進場形式、核心程序、退場/拋花球/切蛋糕全部包含在內，不另佔時間）
+  const ceremonyBeforeItems = useMemo(
+    () => [toRuntime(ceremonyArrival), toRuntime(ceremonyLawyer)],
+    []
+  );
 
-  const ceremonyAfterItems = useMemo(() => {
-    const items: RuntimeItem[] = [];
-    items.push(...ceremonyMarch.items.filter((i) => i.checked));
-    items.push(...ceremonyBouquet.items.filter((i) => i.checked));
-    items.push(...ceremonyCake.items.filter((i) => i.checked));
-    items.push(toRuntime(ceremonyPhoto));
-    return items;
-  }, [ceremonyMarch.items, ceremonyBouquet.items, ceremonyCake.items]);
+  const ceremonyAfterItems = useMemo(() => [toRuntime(ceremonyPhoto)], []);
+
+  // 證婚儀式呢個時間點之內包含嘅環節（不另佔時間，只作顯示之用）
+  const standaloneCeremonyAnchorNotes = useMemo(() => {
+    const entryLabels = entryOptions.items.filter((i) => i.checked).map((i) => i.label);
+    const extraLabels = [...ceremonyMarch.items, ...ceremonyBouquet.items, ...ceremonyCake.items]
+      .filter((i) => i.checked)
+      .map((i) => i.label);
+    return [ceremonyWelcome.label, ...entryLabels, ...ceremonyCoreSteps, ...extraLabels];
+  }, [entryOptions.items, ceremonyMarch.items, ceremonyBouquet.items, ceremonyCake.items]);
 
   const isEmbedded = ceremonyMode === "yes" && ceremonyTiming === "embedded";
 
@@ -415,6 +418,7 @@ export default function RundownGenerator() {
       lines.push("", "【證婚儀式】");
       lines.push(...toLines(standaloneCeremonySchedule.beforeScheduled));
       lines.push(`${ceremonyAnchorTimeLabel}　${ceremonyAnchorLabel}`);
+      standaloneCeremonyAnchorNotes.forEach((note) => lines.push(`　　- ${note}`));
       lines.push(...toLines(standaloneCeremonySchedule.afterScheduled));
     }
     lines.push("", `【${banquetTitleFor(banquetType)}】`);
@@ -466,6 +470,7 @@ export default function RundownGenerator() {
           start: standaloneCeremonySchedule.anchorStart,
           end: standaloneCeremonySchedule.anchorStart,
           label: ceremonyAnchorLabel,
+          notes: standaloneCeremonyAnchorNotes,
         },
         ...standaloneCeremonySchedule.afterScheduled,
       ],
