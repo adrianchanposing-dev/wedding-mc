@@ -584,9 +584,7 @@ export default function RundownGenerator() {
                   </div>
                 )}
                 {ceremonyTiming === "embedded" && (
-                  <p className="mt-3 text-xs text-muted">
-                    入席證婚將插入宴會「更換主婚紗」之後、「正式開席」之前，毋須另設時間。
-                  </p>
+                  <p className="mt-3 text-xs text-muted">入席證婚將插入宴會正式開席之前進行。</p>
                 )}
               </>
             )}
@@ -636,15 +634,12 @@ export default function RundownGenerator() {
       {ceremonyMode === "yes" && (
         <div className="no-print rounded-2xl border border-line bg-card p-6">
           <h2 className="font-serif-display text-xl text-ink">{ceremonyStepNum}. 證婚儀式環節</h2>
-          {ceremonyTiming === "embedded" && (
-            <p className="mt-1 text-sm text-muted">以下環節將插入宴會流程之中，時間已反映於下方宴會環節。</p>
-          )}
           <div className="mt-4 space-y-2">
             {ceremonyTiming === "standalone" && <FixedRow label={ceremonyArrival.label} desc={ceremonyArrival.desc} />}
             <FixedRow label={ceremonyLawyer.label} desc={ceremonyLawyer.desc} />
           </div>
           <div className="mt-3 space-y-2">
-            <p className="text-xs text-muted">進場形式（以下三項不設固定次序，可按需要選擇）</p>
+            <p className="text-xs text-muted">進場形式（可按需要選擇）</p>
             {entryOptions.items.map((it) => (
               <OptionalRow key={it.id} item={it} onToggle={() => entryOptions.toggle(it.id)} />
             ))}

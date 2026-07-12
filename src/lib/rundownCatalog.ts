@@ -93,7 +93,7 @@ export const fetchingAnchorDesc =
 // ---------------------------------------------------------------------------
 export const ceremonyArrival = fixedItem(
   "c-arrival",
-  "新人、司儀到達證婚場地，統籌迎賓人員綵排",
+  "司儀到達證婚場地，統籌迎賓人員綵排",
   45,
   "新人偕司儀到達證婚場地，司儀與負責進場的人員（花女、伴郎伴娘、家長等）綵排流程。獨立舉行證婚時方需此項；入席證婚則毋須另行到場。"
 );
@@ -115,7 +115,7 @@ export const ceremonyEntryOptions: CatalogItem[] = [
 export const ceremonyAnchorLabel = "證婚儀式（宣讀誓詞、交換戒指、簽署證書）";
 export const ceremonyAnchorDurationMin = 20;
 export const ceremonyAnchorDesc =
-  "由律師或主禮人主持，宣讀誓詞、交換戒指、簽署結婚證書，正式完成法律上的證婚程序。";
+  "由律師主持，宣讀誓詞、交換戒指、簽署結婚證書，正式完成法律上的證婚程序。";
 
 export const ceremonyOptCake = optionalItem(
   "c-opt-cake",
@@ -136,7 +136,7 @@ export const ceremonyOptMarch = optionalItem(
   "c-opt-march",
   "退場 / 重新進場（March out / Re-march in）",
   10,
-  undefined,
+  "新人先行退場，稍後在音樂聲中重新步入會場，用以加強氣氛、方便補拍進場畫面。",
   false
 );
 
@@ -156,7 +156,7 @@ export const dinnerBefore: CatalogItem[] = [
 ];
 
 export const lunchBefore: CatalogItem[] = [
-  fixedItem("l-bride-change", "新娘更換主婚紗及補妝", 30, "新娘更換主婚紗（或首套敬酒服）並補妝，準備開席入場。"),
+  fixedItem("l-bride-change", "新娘更換主婚紗及補妝", 30, "新娘更換主婚紗並補妝，準備開席入場。"),
 ];
 
 export const banquetAnchorLabelFor: Record<BanquetType, string> = {
