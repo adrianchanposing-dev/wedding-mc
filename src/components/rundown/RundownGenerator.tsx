@@ -218,7 +218,7 @@ export default function RundownGenerator() {
     return { beforeScheduled, anchorStart: fetchAnchorTime, anchorEnd, afterScheduled };
   }, [entryBeforeFixed, entryAfterFixed, fetchAnchorTime]);
 
-  // 證婚——組合「律師到場／進場形式（可選）」→ 證婚錨點 →「切蛋糕（可選）／大合照／拋花球（可選）／退場（可選）」
+  // 證婚——組合「律師到場／進場形式（可選）」→ 證婚錨點 →「退場（可選）／拋花球（可選）／切蛋糕（可選）／大合照」
   const ceremonyBeforeItems = useMemo(() => {
     const items: RuntimeItem[] = [];
     if (ceremonyTiming === "standalone") items.push(toRuntime(ceremonyArrival));
@@ -229,12 +229,12 @@ export default function RundownGenerator() {
 
   const ceremonyAfterItems = useMemo(() => {
     const items: RuntimeItem[] = [];
+    items.push(...ceremonyMarch.items.filter((i) => i.checked));
+    items.push(...ceremonyBouquet.items.filter((i) => i.checked));
     items.push(...ceremonyCake.items.filter((i) => i.checked));
     items.push(toRuntime(ceremonyPhoto));
-    items.push(...ceremonyBouquet.items.filter((i) => i.checked));
-    items.push(...ceremonyMarch.items.filter((i) => i.checked));
     return items;
-  }, [ceremonyCake.items, ceremonyBouquet.items, ceremonyMarch.items]);
+  }, [ceremonyMarch.items, ceremonyBouquet.items, ceremonyCake.items]);
 
   const isEmbedded = ceremonyMode === "yes" && ceremonyTiming === "embedded";
 
@@ -313,10 +313,54 @@ export default function RundownGenerator() {
 
   const ceremonyAnchorTimeLabel =
     ceremonyTiming === "standalone"
-      ? timePoint(standaloneCeremonySchedule.anchorStart, standaloneCeremonySchedule.anchorEnd)
-      : banquetSchedule.embeddedCeremonyAnchor
-        ? timePoint(banquetSchedule.embeddedCeremonyAnchor.start, banquetSchedule.embeddedCeremonyAnchor.end)
-        : "";
+      ? standaloneCeremonySchedule.anchorStart
+      : (banquetSchedule.embeddedCeremonyAnchor?.start ?? "");
+
+  // 檢查各環節之間會否時間重疊，及早提醒新人調整
+  const scheduleWarnings = useMemo(() => {
+    const warnings: string[] = [];
+
+    if (fetchingMode === "yes") {
+      const entryEnd =
+        entrySchedule.afterScheduled.length > 0
+          ? entrySchedule.afterScheduled[entrySchedule.afterScheduled.length - 1].end
+          : entrySchedule.anchorEnd;
+      let nextStart: string;
+      let nextLabel: string;
+      if (ceremonyMode === "yes" && ceremonyTiming === "standalone") {
+        nextStart =
+          standaloneCeremonySchedule.beforeScheduled.length > 0
+            ? standaloneCeremonySchedule.beforeScheduled[0].start
+            : standaloneCeremonySchedule.anchorStart;
+        nextLabel = "證婚儀式";
+      } else {
+        nextStart =
+          banquetSchedule.beforeScheduled.length > 0 ? banquetSchedule.beforeScheduled[0].start : banquetSchedule.anchorStart;
+        nextLabel = banquetTitleFor(banquetType);
+      }
+      if (toMinutes(nextStart) < toMinutes(entryEnd)) {
+        warnings.push(
+          `出入門環節預計 ${entryEnd} 完成，但${nextLabel}已安排於 ${nextStart} 開始，兩者時間重疊，請調整出門時間或${nextLabel}的開始時間。`
+        );
+      }
+    }
+
+    if (ceremonyMode === "yes" && ceremonyTiming === "standalone") {
+      const ceremonyEnd =
+        standaloneCeremonySchedule.afterScheduled.length > 0
+          ? standaloneCeremonySchedule.afterScheduled[standaloneCeremonySchedule.afterScheduled.length - 1].end
+          : standaloneCeremonySchedule.anchorEnd;
+      const banquetLeadStart =
+        banquetSchedule.beforeScheduled.length > 0 ? banquetSchedule.beforeScheduled[0].start : banquetSchedule.anchorStart;
+      if (toMinutes(banquetLeadStart) < toMinutes(ceremonyEnd)) {
+        warnings.push(
+          `證婚儀式預計 ${ceremonyEnd} 完成，但${banquetTitleFor(banquetType)}已安排於 ${banquetLeadStart} 開始準備，兩者時間重疊，請調整證婚開始時間或${banquetTitleFor(banquetType)}開始時間。`
+        );
+      }
+    }
+
+    return warnings;
+  }, [fetchingMode, ceremonyMode, ceremonyTiming, entrySchedule, standaloneCeremonySchedule, banquetSchedule, banquetType]);
 
   function toLines(items: ScheduledItem[]): string[] {
     return items.map((i) => `${timePoint(i.start, i.end)}　${i.label}`);
@@ -342,7 +386,7 @@ export default function RundownGenerator() {
     }
     lines.push("", `【${banquetTitleFor(banquetType)}】`);
     lines.push(...toLines(banquetSchedule.beforeScheduled));
-    lines.push(`${timePoint(banquetSchedule.anchorStart, banquetSchedule.anchorEnd)}　${banquetAnchorLabel}`);
+    lines.push(`${banquetSchedule.anchorStart}　${banquetAnchorLabel}`);
     banquetAnchorNotes.forEach((note) => lines.push(`　　- ${note}`));
     lines.push(...toLines(banquetSchedule.afterScheduled));
     return lines;
@@ -387,7 +431,7 @@ export default function RundownGenerator() {
         {
           id: "ceremony-anchor",
           start: standaloneCeremonySchedule.anchorStart,
-          end: standaloneCeremonySchedule.anchorEnd,
+          end: standaloneCeremonySchedule.anchorStart,
           label: ceremonyAnchorLabel,
         },
         ...standaloneCeremonySchedule.afterScheduled,
@@ -401,7 +445,7 @@ export default function RundownGenerator() {
       {
         id: "banquet-anchor",
         start: banquetSchedule.anchorStart,
-        end: banquetSchedule.anchorEnd,
+        end: banquetSchedule.anchorStart,
         label: banquetAnchorLabel,
         notes: banquetAnchorNotes,
       },
@@ -549,11 +593,18 @@ export default function RundownGenerator() {
         </div>
       </div>
 
+      {scheduleWarnings.length > 0 && (
+        <div className="no-print space-y-2 rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">
+          {scheduleWarnings.map((warning) => (
+            <p key={warning}>{warning}</p>
+          ))}
+        </div>
+      )}
+
       {/* Step 2：出入門詳情 */}
       {fetchingMode === "yes" && (
         <div className="no-print rounded-2xl border border-line bg-card p-6">
           <h2 className="font-serif-display text-xl text-ink">{entryStepNum}. 出入門環節</h2>
-          <p className="mt-1 text-sm text-muted">以下流程為傳統固定安排，時間圍繞「出門」自動計算。</p>
           <div className="mt-4 space-y-2">
             {entryBeforeFixed.map((it) => (
               <FixedRow key={it.id} label={it.label} desc={it.desc} />
@@ -574,11 +625,9 @@ export default function RundownGenerator() {
       {ceremonyMode === "yes" && (
         <div className="no-print rounded-2xl border border-line bg-card p-6">
           <h2 className="font-serif-display text-xl text-ink">{ceremonyStepNum}. 證婚儀式環節</h2>
-          <p className="mt-1 text-sm text-muted">
-            {ceremonyTiming === "standalone"
-              ? "時間圍繞「證婚儀式」自動計算。"
-              : "以下環節將插入宴會流程之中，時間已反映於下方宴會環節。"}
-          </p>
+          {ceremonyTiming === "embedded" && (
+            <p className="mt-1 text-sm text-muted">以下環節將插入宴會流程之中，時間已反映於下方宴會環節。</p>
+          )}
           <div className="mt-4 space-y-2">
             {ceremonyTiming === "standalone" && <FixedRow label={ceremonyArrival.label} desc={ceremonyArrival.desc} />}
             <FixedRow label={ceremonyLawyer.label} desc={ceremonyLawyer.desc} />
@@ -593,16 +642,16 @@ export default function RundownGenerator() {
             <AnchorRow label={`${ceremonyAnchorTimeLabel}　${ceremonyAnchorLabel}`} desc={ceremonyAnchorDesc} />
           </div>
           <div className="mt-3 space-y-2">
+            {ceremonyMarch.items.map((it) => (
+              <OptionalRow key={it.id} item={it} onToggle={() => ceremonyMarch.toggle(it.id)} />
+            ))}
+            {ceremonyBouquet.items.map((it) => (
+              <OptionalRow key={it.id} item={it} onToggle={() => ceremonyBouquet.toggle(it.id)} />
+            ))}
             {ceremonyCake.items.map((it) => (
               <OptionalRow key={it.id} item={it} onToggle={() => ceremonyCake.toggle(it.id)} />
             ))}
             <FixedRow label={ceremonyPhoto.label} desc={ceremonyPhoto.desc} />
-            {ceremonyBouquet.items.map((it) => (
-              <OptionalRow key={it.id} item={it} onToggle={() => ceremonyBouquet.toggle(it.id)} />
-            ))}
-            {ceremonyMarch.items.map((it) => (
-              <OptionalRow key={it.id} item={it} onToggle={() => ceremonyMarch.toggle(it.id)} />
-            ))}
           </div>
         </div>
       )}
@@ -612,7 +661,6 @@ export default function RundownGenerator() {
         <h2 className="font-serif-display text-xl text-ink">
           {banquetStepNum}. {banquetTitleFor(banquetType)}環節
         </h2>
-        <p className="mt-1 text-sm text-muted">時間圍繞「正式開席」自動計算。</p>
         <div className="mt-4 space-y-2">
           {banquetBeforeFixed.map((it) => (
             <FixedRow key={it.id} label={it.label} desc={it.desc} />
@@ -642,10 +690,7 @@ export default function RundownGenerator() {
           )}
         </div>
         <div className="mt-3">
-          <AnchorRow
-            label={`${timePoint(banquetSchedule.anchorStart, banquetSchedule.anchorEnd)}　${banquetAnchorLabel}`}
-            desc={banquetAnchorDesc}
-          />
+          <AnchorRow label={`${banquetSchedule.anchorStart}　${banquetAnchorLabel}`} desc={banquetAnchorDesc} />
         </div>
         <p className="mt-3 text-xs text-muted">以下環節已包含在這半小時之內，不另佔時間：</p>
         <div className="mt-2 space-y-2">

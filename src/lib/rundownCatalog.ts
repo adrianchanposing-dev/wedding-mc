@@ -98,7 +98,7 @@ export const ceremonyLawyer = fixedItem(
 
 // 進場形式：三者之間不設固定次序，由司儀臨場安排
 export const ceremonyEntryOptions: CatalogItem[] = [
-  optionalItem("c-opt-father-walk", "外父帶新娘進場", 3, undefined, false),
+  optionalItem("c-opt-father-walk", "親人帶新娘進場", 3, undefined, false),
   optionalItem("c-opt-flower-kids", "花仔花女進場", 3, undefined, false),
   optionalItem("c-opt-siblings-entry", "兄弟姊妹團進場", 3, undefined, false),
 ];
@@ -125,7 +125,7 @@ export const ceremonyPhoto = fixedItem(
 export const ceremonyOptBouquet = optionalItem("c-opt-bouquet", "拋花球", 10, undefined, false);
 export const ceremonyOptMarch = optionalItem(
   "c-opt-march",
-  "退場 / 重新進場（March out / re-march in）",
+  "退場 / 重新進場（March out / Re-march in）",
   10,
   undefined,
   false
