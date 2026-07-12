@@ -181,8 +181,13 @@ export const banquetAnchorLabelFor: Record<BanquetType, string> = {
   lunch: "午宴正式開始",
 };
 export const banquetAnchorDurationMin = 30;
-export const banquetAnchorDesc =
-  "司儀開場致辭、新人正式進場，接著依序進行以下環節，然後開始上菜——以下均包含在這半小時之內，不另佔時間。";
+// 入席證婚時，「正式開始」需容納完整證婚核心程序，由開始至上菜共45分鐘
+export const banquetAnchorDurationMinEmbedded = 45;
+
+export function banquetAnchorDescFor(durationMin: number): string {
+  const span = durationMin === 30 ? "半小時" : `${durationMin} 分鐘`;
+  return `司儀開場致辭、新人正式進場，接著依序進行以下環節，然後開始上菜——以下均包含在這${span}之內，不另佔時間。`;
+}
 
 // 「正式開始」這半小時之內包含的環節（不另佔時間，只作勾選及顯示之用）
 export const banquetAnchorIncludes: CatalogItem[] = [

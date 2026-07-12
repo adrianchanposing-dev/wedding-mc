@@ -7,8 +7,9 @@ import {
   CatalogItem,
   CeremonyTimingMode,
   addMinutes,
-  banquetAnchorDesc,
+  banquetAnchorDescFor,
   banquetAnchorDurationMin,
+  banquetAnchorDurationMinEmbedded,
   banquetAnchorIncludes,
   banquetAnchorLabelFor,
   banquetAnchorServe,
@@ -262,27 +263,26 @@ export default function RundownGenerator() {
   }, [ceremonyStart, ceremonyBeforeItems, ceremonyAfterItems]);
 
   // 「正式開始」呢段時間之內包含嘅環節（不另佔時間，只作顯示之用）——
-  // 入席證婚時，證婚核心程序及其可選項目嵌入喺宴會自己嘅開場（成長片段／進場）之後、
-  // 舞台儀式（切餅／交杯等）之前；獨立舉行或不設證婚時維持原有內容。
+  // 入席證婚時，證婚核心程序嵌入喺宴會自己嘅開場（成長片段／進場）之後、
+  // 舞台儀式（切餅／交杯等）之前；退場/拋花球/切蛋糕呢類獨立舉行專屬嘅可選項目不適用於此模式。
   const banquetAnchorNotes = useMemo(() => {
     const [videoItem, ...restBanquetIncludes] = banquetIncludes.items;
     const restBanquetLabels = restBanquetIncludes.filter((i) => i.checked).map((i) => i.label);
     if (isEmbedded) {
       const entryLabels = entryOptions.items.filter((i) => i.checked).map((i) => i.label);
-      const ceremonyOptionalLabels = [...ceremonyMarch.items, ...ceremonyBouquet.items, ...ceremonyCake.items]
-        .filter((i) => i.checked)
-        .map((i) => i.label);
       return [
         ...(videoItem?.checked ? [videoItem.label] : []),
         ...entryLabels,
         ceremonyAnchorLabel,
-        ...ceremonyOptionalLabels,
         ...restBanquetLabels,
         banquetAnchorServe.label,
       ];
     }
     return [...(videoItem?.checked ? [videoItem.label] : []), ...restBanquetLabels, banquetAnchorServe.label];
-  }, [isEmbedded, banquetIncludes.items, entryOptions.items, ceremonyMarch.items, ceremonyBouquet.items, ceremonyCake.items]);
+  }, [isEmbedded, banquetIncludes.items, entryOptions.items]);
+
+  const effectiveBanquetAnchorDurationMin = isEmbedded ? banquetAnchorDurationMinEmbedded : banquetAnchorDurationMin;
+  const banquetAnchorDesc = banquetAnchorDescFor(effectiveBanquetAnchorDurationMin);
 
   // 宴會時間表：入席證婚時，律師固定於開席前15分鐘到場（獨立於前置環節之外）；
   // 早拍晚播（可選）插入「更換敬酒裝」之後、「逐桌敬酒」之前
@@ -311,7 +311,7 @@ export default function RundownGenerator() {
       beforeScheduled.push({ ...toRuntime(ceremonyLawyer), start: lawyerTime, end: lawyerTime });
     }
 
-    const anchorEnd = addMinutes(banquetStart, banquetAnchorDurationMin);
+    const anchorEnd = addMinutes(banquetStart, isEmbedded ? banquetAnchorDurationMinEmbedded : banquetAnchorDurationMin);
 
     const [changeItem, ...restAfterFixed] = banquetAfterFixed;
     const afterItems: RuntimeItem[] = [
@@ -478,7 +478,7 @@ export default function RundownGenerator() {
 
   let stepNum = 1;
   const entryStepNum = fetchingMode === "yes" ? ++stepNum : null;
-  const ceremonyStepNum = ceremonyMode === "yes" ? ++stepNum : null;
+  const ceremonyStepNum = ceremonyMode === "yes" && ceremonyTiming === "standalone" ? ++stepNum : null;
   const banquetStepNum = ++stepNum;
 
   return (
@@ -634,21 +634,15 @@ export default function RundownGenerator() {
         </div>
       )}
 
-      {/* Step 3：證婚詳情（獨立舉行時獨立顯示；入席證婚時附註於宴會環節） */}
-      {ceremonyMode === "yes" && (
+      {/* Step 3：證婚詳情（僅獨立舉行時顯示；入席證婚時完全併入宴會環節，此卡片不存在） */}
+      {ceremonyMode === "yes" && ceremonyTiming === "standalone" && (
         <div className="no-print rounded-2xl border border-line bg-card p-6">
           <h2 className="font-serif-display text-xl text-ink">{ceremonyStepNum}. 證婚儀式環節</h2>
-          {ceremonyTiming === "standalone" ? (
-            <div className="mt-4 space-y-2">
-              <FixedRow label={ceremonyArrival.label} desc={ceremonyArrival.desc} />
-              <FixedRow label={ceremonyLawyer.label} desc={ceremonyLawyer.desc} />
-              <FixedRow label={ceremonyWelcome.label} desc={ceremonyWelcome.desc} />
-            </div>
-          ) : (
-            <div className="mt-4 space-y-2">
-              <FixedRow label={ceremonyLawyer.label} desc={ceremonyLawyer.desc} />
-            </div>
-          )}
+          <div className="mt-4 space-y-2">
+            <FixedRow label={ceremonyArrival.label} desc={ceremonyArrival.desc} />
+            <FixedRow label={ceremonyLawyer.label} desc={ceremonyLawyer.desc} />
+            <FixedRow label={ceremonyWelcome.label} desc={ceremonyWelcome.desc} />
+          </div>
           <div className="mt-3 space-y-2">
             <p className="text-xs text-muted">進場形式（可按需要選擇）</p>
             {entryOptions.items.map((it) => (
@@ -656,11 +650,7 @@ export default function RundownGenerator() {
             ))}
           </div>
           <div className="mt-3">
-            {ceremonyTiming === "standalone" ? (
-              <AnchorRow label={`${ceremonyAnchorTimeLabel}　${ceremonyAnchorLabel}`} desc={ceremonyAnchorDesc} />
-            ) : (
-              <FixedRow label={ceremonyAnchorLabel} desc={ceremonyAnchorDesc} />
-            )}
+            <AnchorRow label={`${ceremonyAnchorTimeLabel}　${ceremonyAnchorLabel}`} desc={ceremonyAnchorDesc} />
           </div>
           <div className="mt-3 space-y-2">
             {ceremonyMarch.items.map((it) => (
@@ -672,7 +662,7 @@ export default function RundownGenerator() {
             {ceremonyCake.items.map((it) => (
               <OptionalRow key={it.id} item={it} onToggle={() => ceremonyCake.toggle(it.id)} />
             ))}
-            {ceremonyTiming === "standalone" && <FixedRow label={ceremonyPhoto.label} desc={ceremonyPhoto.desc} />}
+            <FixedRow label={ceremonyPhoto.label} desc={ceremonyPhoto.desc} />
           </div>
         </div>
       )}
@@ -699,15 +689,6 @@ export default function RundownGenerator() {
                 <OptionalRow key={it.id} item={it} onToggle={() => entryOptions.toggle(it.id)} />
               ))}
               <FixedRow label={ceremonyAnchorLabel} desc={ceremonyAnchorDesc} />
-              {ceremonyMarch.items.map((it) => (
-                <OptionalRow key={it.id} item={it} onToggle={() => ceremonyMarch.toggle(it.id)} />
-              ))}
-              {ceremonyBouquet.items.map((it) => (
-                <OptionalRow key={it.id} item={it} onToggle={() => ceremonyBouquet.toggle(it.id)} />
-              ))}
-              {ceremonyCake.items.map((it) => (
-                <OptionalRow key={it.id} item={it} onToggle={() => ceremonyCake.toggle(it.id)} />
-              ))}
               {banquetIncludes.items.slice(1).map((it) => (
                 <OptionalRow key={it.id} item={it} onToggle={() => banquetIncludes.toggle(it.id)} />
               ))}
