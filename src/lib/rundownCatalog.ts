@@ -119,7 +119,9 @@ export const ceremonyEntryOptions: CatalogItem[] = [
   optionalItem("c-opt-siblings-entry", "兄弟姊妹團進場", 3, undefined, false),
 ];
 
-export const ceremonyAnchorLabel = "證婚儀式正式開始";
+// 證婚儀式正式開始——標示時間錨點本身；「證婚儀式」則係核心程序嘅描述，不另佔時間
+export const ceremonyStartLabel = "證婚儀式正式開始";
+export const ceremonyAnchorLabel = "證婚儀式";
 export const ceremonyAnchorDurationMin = 20;
 export const ceremonyAnchorDesc =
   "由律師主持，依序宣讀誓詞、交換戒指、揭頭紗、親吻祝賀、簽紙，正式完成法律上的證婚程序。";

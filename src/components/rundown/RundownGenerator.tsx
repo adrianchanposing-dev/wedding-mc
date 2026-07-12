@@ -28,6 +28,7 @@ import {
   ceremonyOptCake,
   ceremonyOptMarch,
   ceremonyPhoto,
+  ceremonyStartLabel,
   ceremonyWelcome,
   dinnerAfter,
   dinnerBefore,
@@ -263,7 +264,7 @@ export default function RundownGenerator() {
     const extraLabels = [...ceremonyMarch.items, ...ceremonyBouquet.items, ...ceremonyCake.items]
       .filter((i) => i.checked)
       .map((i) => i.label);
-    return [ceremonyWelcome.label, ...entryLabels, ...ceremonyCoreSteps, ...extraLabels];
+    return [ceremonyWelcome.label, ...entryLabels, ceremonyAnchorLabel, ...ceremonyCoreSteps, ...extraLabels];
   }, [entryOptions.items, ceremonyMarch.items, ceremonyBouquet.items, ceremonyCake.items]);
 
   const isEmbedded = ceremonyMode === "yes" && ceremonyTiming === "embedded";
@@ -417,7 +418,7 @@ export default function RundownGenerator() {
     if (ceremonyMode === "yes" && ceremonyTiming === "standalone") {
       lines.push("", "【證婚儀式】");
       lines.push(...toLines(standaloneCeremonySchedule.beforeScheduled));
-      lines.push(`${ceremonyAnchorTimeLabel}　${ceremonyAnchorLabel}`);
+      lines.push(`${ceremonyAnchorTimeLabel}　${ceremonyStartLabel}`);
       standaloneCeremonyAnchorNotes.forEach((note) => lines.push(`　　- ${note}`));
       lines.push(...toLines(standaloneCeremonySchedule.afterScheduled));
     }
@@ -469,7 +470,7 @@ export default function RundownGenerator() {
           id: "ceremony-anchor",
           start: standaloneCeremonySchedule.anchorStart,
           end: standaloneCeremonySchedule.anchorStart,
-          label: ceremonyAnchorLabel,
+          label: ceremonyStartLabel,
           notes: standaloneCeremonyAnchorNotes,
         },
         ...standaloneCeremonySchedule.afterScheduled,
@@ -656,6 +657,11 @@ export default function RundownGenerator() {
           <div className="mt-4 space-y-2">
             <FixedRow label={ceremonyArrival.label} desc={ceremonyArrival.desc} />
             <FixedRow label={ceremonyLawyer.label} desc={ceremonyLawyer.desc} />
+          </div>
+          <div className="mt-3">
+            <AnchorRow label={`${ceremonyAnchorTimeLabel}　${ceremonyStartLabel}`} />
+          </div>
+          <div className="mt-3 space-y-2">
             <FixedRow label={ceremonyWelcome.label} desc={ceremonyWelcome.desc} />
           </div>
           <div className="mt-3 space-y-2">
@@ -665,7 +671,7 @@ export default function RundownGenerator() {
             ))}
           </div>
           <div className="mt-3">
-            <AnchorRow label={`${ceremonyAnchorTimeLabel}　${ceremonyAnchorLabel}`} desc={ceremonyAnchorDesc} />
+            <FixedRow label={ceremonyAnchorLabel} desc={ceremonyAnchorDesc} />
           </div>
           <div className="mt-3 space-y-2">
             {ceremonyMarch.items.map((it) => (
