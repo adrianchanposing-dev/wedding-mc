@@ -173,7 +173,7 @@ export default function PrepPage() {
       <section id="glossary" className="mt-16 scroll-mt-24">
         <h2 className="font-serif-display text-2xl text-ink">婚禮術語小百科</h2>
         <p className="mt-2 text-sm text-muted">
-          初次籌備婚禮？以下為婚禮流程表中常見術語的淺白解釋，讀畢再返回
+          以下為婚禮流程表中常見術語的淺白解釋，讀畢再返回
           <Link href="/rundown" className="text-accent-dark underline underline-offset-2">
             婚禮流程表製作
           </Link>
