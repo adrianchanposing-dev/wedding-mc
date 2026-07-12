@@ -698,8 +698,7 @@ export default function RundownGenerator() {
         <div className="mt-3">
           <AnchorRow label={`${banquetSchedule.anchorStart}　${banquetAnchorLabel}`} desc={banquetAnchorDesc} />
         </div>
-        <p className="mt-3 text-xs text-muted">以下環節已包含在這半小時之內，不另佔時間：</p>
-        <div className="mt-2 space-y-2">
+        <div className="mt-3 space-y-2">
           {banquetIncludes.items.map((it) => (
             <OptionalRow key={it.id} item={it} onToggle={() => banquetIncludes.toggle(it.id)} />
           ))}
