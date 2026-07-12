@@ -209,6 +209,16 @@ export const banquetPreshoot = optionalItem(
   true
 );
 
+export function banquetPreshootLabelFor(type: BanquetType): string {
+  return type === "lunch" ? "播放早拍午播花絮" : "播放早拍晚播花絮";
+}
+
+export function banquetPreshootDescFor(type: BanquetType): string {
+  return type === "lunch"
+    ? "播放婚禮當日拍攝之「早拍午播」花絮，於逐桌敬酒之前進行。"
+    : "播放婚禮當日拍攝之「早拍晚播」花絮，於逐桌敬酒之前進行。";
+}
+
 export const dinnerAfter: CatalogItem[] = [
   fixedItem("d-red-dress", "新娘更換敬酒裝", 30, "新娘更換傳統敬酒裝，以便其後逐桌敬酒。"),
   fixedItem(

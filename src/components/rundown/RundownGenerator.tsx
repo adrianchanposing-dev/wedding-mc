@@ -14,6 +14,8 @@ import {
   banquetAnchorLabelFor,
   banquetAnchorServe,
   banquetPreshoot,
+  banquetPreshootDescFor,
+  banquetPreshootLabelFor,
   banquetTitleFor,
   ceremonyAnchorDesc,
   ceremonyAnchorDurationMin,
@@ -199,6 +201,15 @@ export default function RundownGenerator() {
   const ceremonyMarch = useOptionalList([ceremonyOptMarch]);
   const banquetIncludes = useOptionalList(banquetAnchorIncludes);
   const preshoot = useOptionalList([banquetPreshoot]);
+  const preshootItems = useMemo(
+    () =>
+      preshoot.items.map((it) => ({
+        ...it,
+        label: banquetPreshootLabelFor(banquetType),
+        desc: banquetPreshootDescFor(banquetType),
+      })),
+    [preshoot.items, banquetType]
+  );
 
   function switchBanquetType(type: BanquetType) {
     setBanquetType(type);
@@ -316,7 +327,7 @@ export default function RundownGenerator() {
     const [changeItem, ...restAfterFixed] = banquetAfterFixed;
     const afterItems: RuntimeItem[] = [
       changeItem,
-      ...preshoot.items.filter((i) => i.checked),
+      ...preshootItems.filter((i) => i.checked),
       ...restAfterFixed,
     ];
     const afterScheduled = scheduleSequential(anchorEnd, afterItems);
@@ -331,7 +342,7 @@ export default function RundownGenerator() {
     isEmbedded,
     banquetBeforeFixed,
     banquetStart,
-    preshoot.items,
+    preshootItems,
     banquetAfterFixed,
     ceremonyMode,
     ceremonyTiming,
@@ -363,8 +374,10 @@ export default function RundownGenerator() {
   }, [fetchingMode, entryScheduleRaw, nextStartAfterEntry, entryAfterFixed]);
 
   // 出入門完成後、獨立證婚開始前的空檔——安排午膳及外影
+  // 此空檔只適用於晚宴（日間出入門，晚上開席，中間可安排午膳）；
+  // 午宴本身已在中午舉行，不適用此空檔概念。
   const gapBeforeNextBlock = useMemo(() => {
-    if (fetchingMode !== "yes") return null;
+    if (fetchingMode !== "yes" || banquetType !== "dinner") return null;
     const gapStart =
       entrySchedule.afterScheduled.length > 0
         ? entrySchedule.afterScheduled[entrySchedule.afterScheduled.length - 1].end
@@ -381,7 +394,7 @@ export default function RundownGenerator() {
     const gapMinutes = toMinutes(gapEnd) - toMinutes(gapStart);
     if (gapMinutes <= 0) return null;
     return { start: gapStart, end: gapEnd };
-  }, [fetchingMode, ceremonyMode, ceremonyTiming, entrySchedule, standaloneCeremonySchedule, banquetSchedule]);
+  }, [fetchingMode, banquetType, ceremonyMode, ceremonyTiming, entrySchedule, standaloneCeremonySchedule, banquetSchedule]);
 
   const ceremonyAnchorTimeLabel = standaloneCeremonySchedule.anchorStart;
 
@@ -702,7 +715,7 @@ export default function RundownGenerator() {
         </div>
         <div className="mt-3 space-y-2">
           {banquetChangeFixed && <FixedRow label={banquetChangeFixed.label} desc={banquetChangeFixed.desc} />}
-          {preshoot.items.map((it) => (
+          {preshootItems.map((it) => (
             <OptionalRow key={it.id} item={it} onToggle={() => preshoot.toggle(it.id)} />
           ))}
           {banquetRestAfterFixed.map((it) => (
