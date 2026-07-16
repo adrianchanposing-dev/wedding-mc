@@ -18,7 +18,7 @@ const localBusinessSchema = {
     "@type": "City",
     name: "Hong Kong",
   },
-  sameAs: [site.instagramUrl],
+  sameAs: [site.instagramUrl, site.threadsUrl],
 };
 
 export default function Home() {

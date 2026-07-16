@@ -13,7 +13,7 @@ export default function ContactSection() {
         </h2>
         <p className="mt-4 text-background/80">
           無論婚禮形式為中式敬茶、教堂儀式，或戶外證婚，
-          歡迎透過 WhatsApp 或 Instagram 與我聯絡，詳談籌備細節。
+          歡迎透過 WhatsApp、Instagram 或 Threads 與我聯絡，詳談籌備細節。
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
@@ -31,6 +31,14 @@ export default function ContactSection() {
             className="w-full rounded-full border border-background/40 px-6 py-3 text-center font-medium text-background transition hover:bg-background/10 sm:w-auto"
           >
             Instagram @{site.instagramHandle}
+          </a>
+          <a
+            href={site.threadsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full rounded-full border border-background/40 px-6 py-3 text-center font-medium text-background transition hover:bg-background/10 sm:w-auto"
+          >
+            Threads @{site.threadsHandle}
           </a>
         </div>
         <p className="mt-6 text-xs text-background/50">

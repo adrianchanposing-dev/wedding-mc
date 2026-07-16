@@ -7,6 +7,8 @@ export const site = {
   taglineSub: "您安心享受每一刻，我用心成就每一步",
   instagramHandle: "mc.adrian.chan",
   instagramUrl: "https://www.instagram.com/mc.adrian.chan/",
+  threadsHandle: "mc.adrian.chan",
+  threadsUrl: "https://www.threads.net/@mc.adrian.chan",
   whatsappNumber: "85290716582",
   whatsappDisplay: "+852 9071 6582",
   email: "mcadrianchan@gmail.com",
